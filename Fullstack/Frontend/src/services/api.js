@@ -15,4 +15,9 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+export const predictRisk = async (data) => {
+  const response = await api.post('/api/predict', data);
+  return response.data;
+};
+
 export default api
