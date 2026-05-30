@@ -4,6 +4,8 @@ require('dotenv').config();
 
 const errorHandler = require('./middleware/errorHandler');
 const authRoutes = require('./routes/auth');
+const profileRoutes = require('./routes/profile')
+const predictionRoutes = require('./routes/prediction')
 
 const app = express();
 const host = process.env.NODE_ENV !== 'production' ? 'localhost' : '0.0.0.0';
@@ -20,6 +22,8 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/habit-log', require('./routes/habitLog'));
 app.use('/api/predict', require('./routes/predict'));
+app.use('/api/profile', profileRoutes)
+app.use('/api/prediction', predictionRoutes)
 
 app.use(errorHandler);
 

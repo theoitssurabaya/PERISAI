@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { IoCloseOutline } from 'react-icons/io5'
 import { s } from '../../styles/common'
 
-const foodOptions = ['Fresh Vegetables', 'Lean Protein', 'Sugary Snacks', 'Fast Food', 'Whole Grain']
-const intensityOptions = ['Low', 'Medium', 'High']
+const foodOptions = ['Sayuran Segar', 'Protein Rendah Lemak', 'Cemilan Manis', 'Makanan Cepat Saji', 'Biji-Bijian Utuh']
+const intensityOptions = ['Rendah', 'Sedang', 'Tinggi']
 
 function DailyCheckInModal({ onClose, onSubmit }) {
   const [meals, setMeals] = useState(3)
@@ -13,7 +13,7 @@ function DailyCheckInModal({ onClose, onSubmit }) {
   const [alcohol, setAlcohol] = useState(false)
   const [stress, setStress] = useState(null)
   const [exercised, setExercised] = useState(false)
-  const [intensity, setIntensity] = useState('Medium')
+  const [intensity, setIntensity] = useState('Sedang')
   const [sleepHours, setSleepHours] = useState(7)
   const [dailySteps, setDailySteps] = useState(0)
 
@@ -148,17 +148,14 @@ function DailyCheckInModal({ onClose, onSubmit }) {
 
         <div className="bg-[#1E293B] rounded-xl px-4 py-3 flex items-center justify-between mb-4">
           <span className="text-sm">Berapa langkah hari ini?</span>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setDailySteps(s => Math.max(0, s - 500))}
-              className="w-7 h-7 rounded-full border border-gray-600 flex items-center justify-center text-gray-300 hover:border-white transition-colors"
-            >-</button>
-            <span className="w-12 text-center font-semibold text-sm">{dailySteps.toLocaleString()}</span>
-            <button
-              onClick={() => setDailySteps(s => s + 500)}
-              className="w-7 h-7 rounded-full border border-gray-600 flex items-center justify-center text-gray-300 hover:border-white transition-colors"
-            >+</button>
-          </div>
+          <input
+            type="number"
+            value={dailySteps === 0 ? '' : dailySteps}
+            onChange={(e) => setDailySteps(Math.max(0, parseInt(e.target.value) || 0))}
+            placeholder="0"
+            min="0"
+            className="w-24 bg-[#0F172A] border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-white text-center outline-none focus:border-[#3B82F6] transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          />
         </div>
 
 

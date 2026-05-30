@@ -6,6 +6,8 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import RiskProfilePage from './pages/RiskProfilePage'
 import MedicalRecordsPage from './pages/MedicalRecordsPage'
+import ProfilePage from './pages/ProfilePage'
+
 
 
 function App() {
@@ -22,6 +24,7 @@ function App() {
         <Route path="habit-log" element={<HabitLogPage />} />
         <Route path="risk-profile" element={<RiskProfilePage />} />
         <Route path="/medical-records" element={<MedicalRecordsPage />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
     </Routes>
   )

@@ -38,6 +38,14 @@ function AIChatPage() {
         }
     }
 
+    const suggestions = [
+        'Apa itu penyakit tidak menular?',
+        'Bagaimana cara mencegah diabetes?',
+        'Apa risiko hipertensi?',
+        'Tips hidup sehat sehari-hari',
+        'Apa arti skor risiko saya?',
+    ]
+
     return (
         <div className="flex flex-col h-[calc(100vh-4rem)] relative">
 
@@ -47,8 +55,19 @@ function AIChatPage() {
                     onSubmit={handleSubmit}
                 />
             )}
-            <div className="flex-1 overflow-y-auto p-6">
-                {/* chat messages akan muncul di sini */}
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col justify-end">
+                {/* Suggestion chips, muncul kalau belum ada chat */}
+                <div className="flex flex-wrap gap-2 justify-center mb-4">
+                    {suggestions.map((s, i) => (
+                        <button
+                            key={i}
+                            onClick={() => setMessage(s)}
+                            className="text-sm px-4 py-2 rounded-full border border-gray-300 bg-white text-[#64748B] hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors"
+                        >
+                            {s}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             <div className="p-6 flex justify-center">
@@ -56,7 +75,7 @@ function AIChatPage() {
                     <textarea
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
-                        placeholder="Placeholder"
+                        placeholder="Tanyakan sesuatu tentang kesehatanmu..."
                         rows={2}
                         className="w-full resize-none outline-none text-[#0F172A] placeholder-[#64748B] text-sm"
                         onKeyDown={(e) => {
@@ -74,7 +93,7 @@ function AIChatPage() {
                             onClick={handleSend}
                             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-[#0F172A] text-sm font-medium px-4 py-2 rounded-xl transition-colors"
                         >
-                            Sent Message
+                            Kirim Pesan
                             <LuSendHorizontal size={16} />
                         </button>
                     </div>

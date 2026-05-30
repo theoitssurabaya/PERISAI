@@ -4,6 +4,7 @@ import { RiBarChartLine } from 'react-icons/ri'
 import { MdOutlineMonitorHeart } from 'react-icons/md'
 import logoIcon from '../../assets/Perisai.png'
 import { s } from '../../styles/common'
+import { IoPersonCircleOutline } from 'react-icons/io5'
 
 
 const navItems = [
@@ -11,6 +12,7 @@ const navItems = [
   { to: '/risk-profile', label: 'Risk Profile', icon: RiBarChartLine },
   { to: '/habit-log', label: 'Habit Log', icon: MdOutlineMonitorHeart },
   { to: '/medical-records', label: 'Medical Records', icon: IoDocumentTextOutline },
+  { to: '/profile', label: 'My Profile', icon: IoPersonCircleOutline },
 ]
 
 const bottomItems = [

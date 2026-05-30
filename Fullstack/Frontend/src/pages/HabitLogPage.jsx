@@ -10,6 +10,7 @@ function HabitLogPage() {
     const [logData, setLogData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
+    const { user } = useAuth()
 
     useEffect(() => {
         if (!isLoggedIn) {
@@ -34,8 +35,8 @@ function HabitLogPage() {
     const stressLevel = logData?.stress_level ?? null
 
 
-    const foodOptions = ['Fresh Vegetables', 'Lean Protein', 'Sugary Snacks', 'Fast Food', 'Whole Grain']
-    const intensityOptions = ['Low', 'Medium', 'High']
+    const foodOptions = ['Sayuran Segar', 'Protein Rendah Lemak', 'Cemilan Manis', 'Makanan Cepat Saji', 'Biji-Bijian Utuh']
+    const intensityOptions = ['Rendah', 'Sedang', 'Tinggi']
     const isToday = new Date().toDateString() === currentDate.toDateString()
 
     const today = new Date()
@@ -81,8 +82,8 @@ function HabitLogPage() {
 
     return (
         <div className={s.pageWrapper}>
-            <h1 className={s.pageTitle}>Hi, Ibra!</h1>
-            <p className={s.pageSubtitle}>How are you feeling today? Let's quickly log your habits to keep your shield strong.</p>
+            <h1 className={s.pageTitle}>Halo, {user?.name || 'Pengguna'}!</h1>
+            <p className={s.pageSubtitle}>Bagaimana perasaanmu hari ini? Ayo cepat catat kebiasaanmu untuk menjaga perisaimu tetap kuat.</p>
 
             {/* Date Navigator */}
             <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 mt-4 mb-2 max-w-sm">
@@ -119,15 +120,15 @@ function HabitLogPage() {
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🍽️</span>
-                        <h2 className={s.sectionTitle}>Daily nutrition</h2>
+                        <h2 className={s.sectionTitle}>Nutrisi Harian</h2>
                     </div>
 
-                    <p className="text-sm text-[#64748B] mb-3">How many meals do you have today?</p>
+                    <p className="text-sm text-[#64748B] mb-3">Berapa banyak makanan yang kamu makan hari ini?</p>
                     <div className="flex items-center gap-4 bg-gray-100 rounded-full px-4 py-2 w-fit mb-4">
                         <span className="font-semibold text-[#0F172A] w-4 text-center">{meals}</span>
                     </div>
 
-                    <p className="text-sm text-[#64748B] mb-3">What kinda food did you eat?</p>
+                    <p className="text-sm text-[#64748B] mb-3">Makanan apa saja yang kamu makan?</p>
                     <div className="flex flex-wrap gap-2">
                         {foodOptions.map(food => (
                             <span
@@ -148,21 +149,21 @@ function HabitLogPage() {
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🏃</span>
-                        <h2 className={s.sectionTitle}>Physical Activity</h2>
+                        <h2 className={s.sectionTitle}>Aktivitas Fisik</h2>
                     </div>
 
                     <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm text-[#0F172A]">Did you exercise?</span>
+                        <span className="text-sm text-[#0F172A]">Apakah kamu berolahraga?</span>
                         <span className={`text-sm px-4 py-1 rounded-full border
                             ${exercised
                                 ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
                                 : 'bg-white text-[#0F172A] border-gray-300'
                             }`}>
-                            {exercised ? 'Yes' : 'No'}
+                            {exercised ? 'Ya' : 'Tidak'}
                         </span>
                     </div>
 
-                    <p className="text-sm text-[#0F172A] mb-2">Intensity</p>
+                    <p className="text-sm text-[#0F172A] mb-2">Intensitas</p>
                     <div className="flex gap-2 mb-4">
                         {intensityOptions.map(opt => (
                             <span
@@ -179,7 +180,7 @@ function HabitLogPage() {
                     </div>
 
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-[#0F172A]">Daily steps</span>
+                        <span className="text-sm text-[#0F172A]">Langkah Harian</span>
                         <span className="text-sm text-[#64748B]">{steps.toLocaleString()}/10K</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -194,10 +195,10 @@ function HabitLogPage() {
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">🌙</span>
-                        <h2 className={s.sectionTitle}>Sleep Quality</h2>
+                        <h2 className={s.sectionTitle}>Kualitas Tidur</h2>
                     </div>
                     <p className="text-3xl font-bold text-[#0F172A] text-center mt-2">{sleepHours}</p>
-                    <p className="text-sm text-[#64748B] text-center mb-4">Sleep of Hours</p>
+                    <p className="text-sm text-[#64748B] text-center mb-4">Jam Tidur</p>
 
                     <ResponsiveContainer width="100%" height={100}>
                         <BarChart data={sleepData} barSize={32}>
@@ -216,10 +217,10 @@ function HabitLogPage() {
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🧠</span>
-                        <h2 className={s.sectionTitle}>Stress Level</h2>
+                        <h2 className={s.sectionTitle}>Tingkat Stres</h2>
                     </div>
 
-                    <p className="text-sm text-[#64748B] mb-6">How overwhelmed did you feel today?</p>
+                    <p className="text-sm text-[#64748B] mb-6">Bagaimana perasaanmu hari ini?</p>
 
                     <div className="flex justify-between gap-2 mb-2">
                         {[1, 2, 3, 4, 5].map(level => (
@@ -236,8 +237,8 @@ function HabitLogPage() {
                         ))}
                     </div>
                     <div className="flex justify-between text-xs text-[#64748B] px-1">
-                        <span>Calm</span>
-                        <span>Stressed</span>
+                        <span>Tenang</span>
+                        <span>Stres</span>
                     </div>
                 </div>
 
