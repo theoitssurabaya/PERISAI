@@ -10,7 +10,7 @@ import os
 # 1. SETUP GEMINI API
 # ==========================================
 # JANGAN LUPA MASUKKAN API KEY KAMU DI SINI
-GOOGLE_API_KEY = "isi_api_key_disini" 
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
 chat_model = genai.GenerativeModel('gemini-2.5-flash')
 
