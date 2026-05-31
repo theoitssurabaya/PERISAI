@@ -18,9 +18,25 @@ const predict = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Isi data harian kamu dulu!' })
     }
 
+    // Konversi usia ke age group
+    const getAgeGroup = (age) => {
+      if (age < 25) return 1
+      if (age < 30) return 2
+      if (age < 35) return 3
+      if (age < 45) return 5
+      if (age < 50) return 6
+      if (age < 55) return 7
+      if (age < 60) return 8
+      if (age < 65) return 9
+      if (age < 70) return 10
+      if (age < 75) return 11
+      if (age < 80) return 12
+      return 13
+    }
+
     // Map ke format input model Theo
     const payload = {
-      Age: profile.age,
+      Age: getAgeGroup(profile.age),
       Sex: profile.sex,
       BMI: parseFloat(profile.bmi),
       Smoker: habitLog.smokes ? 1 : 0,

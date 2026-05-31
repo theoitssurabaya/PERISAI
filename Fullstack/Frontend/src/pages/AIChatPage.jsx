@@ -37,10 +37,17 @@ function AIChatPage() {
     }
 
     const handleSubmit = async (data) => {
-        const today = new Date().toDateString()
-        localStorage.setItem('lastCheckin', today)
-        localStorage.setItem('checkinData', JSON.stringify(data))
-        setCheckedIn(true)
+        try {
+            console.log('Data yang dikirim:', data)
+            const res = await api.post('/api/habit-log', data)
+            console.log('Response:', res.data)
+            const today = new Date().toDateString()
+            localStorage.setItem('lastCheckin', today)
+            localStorage.setItem('checkinData', JSON.stringify(data))
+            setCheckedIn(true)
+        } catch (err) {
+            console.error('Error simpan habit log:', err.response?.data || err.message)
+        }
     }
 
     const suggestions = [
