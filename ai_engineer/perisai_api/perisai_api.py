@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
 import tensorflow as tf
 import joblib
 import numpy as np
@@ -10,9 +11,10 @@ import os
 # 1. SETUP GEMINI API
 # ==========================================
 # JANGAN LUPA MASUKKAN API KEY KAMU DI SINI
+load_dotenv()
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
-chat_model = genai.GenerativeModel('gemini-2.5-flash')
+chat_model = genai.GenerativeModel('gemini-2.0-flash')
 
 app = FastAPI(
     title="PERISAI AI & Chatbot API",
