@@ -82,6 +82,12 @@ except Exception as e:
     print("Error loading dataset to fit scaler:", e)
     scaler = None
 
+def apply_temperature_scaling(prob, temperature=2.5):
+    prob = np.clip(prob, 1e-7, 1 - 1e-7)
+    logit = np.log(prob / (1 - prob))
+    scaled_logit = logit / temperature
+    return 1 / (1 + np.exp(-scaled_logit))
+
 @app.route('/predict', methods=['POST'])
 def predict():
     if model is None or scaler is None:
@@ -103,10 +109,12 @@ def predict():
     # Predict
     predictions = model.predict(scaled_input, verbose=0)[0]
     
-    # Format output
+    # Format output with Temperature Scaling
     result = {}
     for name, prob in zip(TARGETS, predictions):
-        result[name] = float(prob)
+        # Soften extreme probabilities mathematically while keeping the ranking
+        smoothed_prob = apply_temperature_scaling(prob, temperature=2.5)
+        result[name] = float(smoothed_prob)
         
     return jsonify({
         "success": True,

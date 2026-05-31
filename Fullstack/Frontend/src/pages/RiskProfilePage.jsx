@@ -112,9 +112,20 @@ function RiskProfilePage() {
                             <h2 className="text-lg font-semibold text-[#0F172A] mb-6">Risiko Keseluruhan</h2>
                             <div className="flex flex-col md:flex-row md:items-center gap-8">
                                 <div className="relative w-48 h-48 flex items-center justify-center shrink-0">
-                                    <div className="absolute inset-0 rounded-full border-[14px] border-gray-200"></div>
-                                    <div className={`absolute inset-0 rounded-full border-[14px] ${overallColor.split(' ')[0]} border-t-transparent border-l-transparent rotate-[135deg]`}></div>
-                                    <div className="text-center">
+                                    <svg className="absolute inset-0 w-full h-full transform -rotate-90">
+                                        <circle cx="96" cy="96" r="76" stroke="currentColor" strokeWidth="14" fill="transparent" className="text-gray-200" />
+                                        <circle 
+                                            cx="96" cy="96" r="76" 
+                                            stroke="currentColor" 
+                                            strokeWidth="14" 
+                                            fill="transparent" 
+                                            strokeDasharray={2 * Math.PI * 76} 
+                                            strokeDashoffset={(2 * Math.PI * 76) - ((avgRisk / 100) * (2 * Math.PI * 76))} 
+                                            className={`${overallColor.split(' ')[1]} transition-all duration-1000 ease-out`} 
+                                            strokeLinecap="round" 
+                                        />
+                                    </svg>
+                                    <div className="text-center relative z-10">
                                         <h3 className="text-5xl font-bold text-[#0F172A]">{avgRisk}%</h3>
                                         <p className={`font-medium mt-2 ${overallColor.split(' ')[1]}`}>{overallStatus}</p>
                                     </div>
