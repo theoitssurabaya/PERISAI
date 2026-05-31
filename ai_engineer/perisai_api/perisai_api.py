@@ -10,9 +10,9 @@ import os
 # 1. SETUP GEMINI API
 # ==========================================
 # JANGAN LUPA MASUKKAN API KEY KAMU DI SINI
-GOOGLE_API_KEY = "TARUH_API_KEY_GEMINI_DISINI" 
+GOOGLE_API_KEY = "isi_api_key_disini" 
 genai.configure(api_key=GOOGLE_API_KEY)
-chat_model = genai.GenerativeModel('gemini-1.5-flash')
+chat_model = genai.GenerativeModel('gemini-2.5-flash')
 
 app = FastAPI(
     title="PERISAI AI & Chatbot API",
