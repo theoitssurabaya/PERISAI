@@ -24,6 +24,7 @@ app.use('/api/habit-log', require('./routes/habitLog'));
 app.use('/api/predict', require('./routes/predict'));
 app.use('/api/profile', profileRoutes)
 app.use('/api/prediction', predictionRoutes)
+app.use('/api/chat', require('./routes/chat'))
 
 app.use(errorHandler);
 
