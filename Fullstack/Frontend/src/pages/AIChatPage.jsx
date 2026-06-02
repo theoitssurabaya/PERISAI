@@ -64,7 +64,7 @@ function AIChatPage() {
     ]
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] relative">
+        <div className="flex flex-col h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] relative">
 
             {showModal && (
                 <DailyCheckInModal
@@ -72,9 +72,9 @@ function AIChatPage() {
                     onSubmit={handleSubmit}
                 />
             )}
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-3">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col gap-3">
                 {/* Suggestion chips, muncul kalau belum ada chat */}
-                <div className="flex flex-wrap gap-2 justify-center mt-auto pt-40">
+                <div className="flex flex-wrap gap-2 justify-center mt-auto pt-20 sm:pt-40">
                     {suggestions.map((s, i) => (
                         <button
                             key={i}
@@ -113,7 +113,7 @@ function AIChatPage() {
                 )}
             </div>
 
-            <div className="p-6 flex justify-center">
+            <div className="p-3 sm:p-6 flex justify-center">
                 <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
                     <textarea
                         value={message}

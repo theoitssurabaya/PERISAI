@@ -70,8 +70,8 @@ function RiskProfilePage() {
     const overallStatus = avgRisk > 50 ? 'Resiko Tinggi' : avgRisk > 30 ? 'Resiko Sedang' : 'Resiko Rendah'
 
     return (
-        <div className="min-h-screen bg-[#E5E7EB] p-6">
-            <div className="flex justify-between items-center mb-6">
+        <div className="min-h-screen bg-[#E5E7EB] p-3 sm:p-6">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-[#0F172A]">AI Risk Profile</h1>
                     <p className="text-[#64748B] mt-1">Analisis risiko penyakit tidak menular berdasarkan profil kesehatan Anda</p>
