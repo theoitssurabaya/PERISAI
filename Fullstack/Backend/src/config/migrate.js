@@ -29,6 +29,22 @@ const migrate = async () => {
         UNIQUE(user_id, date)
       );
 
+      CREATE TABLE IF NOT EXISTS health_records (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+        date DATE NOT NULL,
+        systolic INT,
+        diastolic INT,
+        cholesterol FLOAT,
+        blood_sugar FLOAT,
+        bmi FLOAT,
+        sleep_hours FLOAT,
+        stress_level VARCHAR(20),
+        activity_minutes INT,
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+
       CREATE TABLE IF NOT EXISTS predictions (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         user_id UUID REFERENCES users(id) ON DELETE CASCADE,
