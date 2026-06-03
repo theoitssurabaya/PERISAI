@@ -6,14 +6,24 @@ import joblib
 import numpy as np
 import requests
 import os
+from typing import Any # Mengizinkan input jenis apa pun
+
+# Import SDK resmi Gemini
+import google.generativeai as genai 
 
 # ==========================================
-# 1. SETUP GEMINI API (MENGGUNAKAN REST API)
+# 1. SETUP GEMINI API
 # ==========================================
-import google.generativeai as genai
-# JANGAN LUPA MASUKKAN API KEY KAMU DI SINI
 load_dotenv()
+# Ambil API key (Jika .env bermasalah, silakan ganti os.getenv dengan string kuncimu langsung)
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+
+if not GOOGLE_API_KEY:
+    raise ValueError("🚨 API Key kosong! Pastikan file .env sudah dibuat di folder ini.")
+
+# Konfigurasi SDK Gemini
+genai.configure(api_key=GOOGLE_API_KEY)
+chat_model = genai.GenerativeModel('gemini-2.5-flash') # Menggunakan versi 2.5 sesuai hasil sidak cek_model.py
 
 app = FastAPI(
     title="PERISAI AI & Chatbot API",
@@ -21,7 +31,7 @@ app = FastAPI(
 )
 
 # ==========================================
-# 2. MEMBANGUN ARSITEKTUR (PENGGANTI .KERAS)
+# 2. MEMBANGUN ARSITEKTUR MODEL ML
 # ==========================================
 class AdvancedDenseLayer(tf.keras.layers.Layer):
     def __init__(self, units, activation=None, **kwargs):
@@ -48,14 +58,11 @@ def build_perisai_model():
     return tf.keras.Model(inputs=inputs, outputs=outputs)
 
 # ==========================================
-# 3. LOAD WEIGHTS & SCALER DARI STRUKTUR ASLI GITHUB
+# 3. LOAD WEIGHTS & SCALER
 # ==========================================
 print("Merakit arsitektur dan mengambil file dari struktur asli repo...")
 
-# Posisi kita: ai_engineer/perisai_api/
-# Path ke weights: ai_engineer/best_model_weights.weights.h5 (Mundur 1 folder)
 WEIGHTS_PATH = "../best_model_weights.weights.h5"
-# Path ke scaler: data/scaler.pkl (Mundur 2 folder, masuk ke data)
 SCALER_PATH = "../../data/scaler.pkl"
 
 model = build_perisai_model()
@@ -65,10 +72,10 @@ scaler = joblib.load(SCALER_PATH)
 print("Model PERISAI siap melayani request!")
 
 # ==========================================
-# 4. API CONTRACT & ENDPOINTS
+# 4. API CONTRACT MODELS
 # ==========================================
 class GeneralChatRequest(BaseModel):
-    message: str
+    message: Any # Menggunakan Any agar kebal dari bentrok tipe data Frontend
 
 class PatientData(BaseModel):
     Age: float
@@ -86,28 +93,42 @@ class PatientData(BaseModel):
     GenHlth: float
     SleepHours: float
 
+# ==========================================
+# 5. ENDPOINTS
+# ==========================================
+
+@app.post("/api/v1/chat/general", tags=["Chatbot"])
+def general_chat(req: GeneralChatRequest):
+    # Bersihkan input, paksa ubah bentuk ke teks string murni
+    text_message = str(req.message)
+    prompt = f"Kamu adalah 'Dokter AI PERISAI', asisten kesehatan cerdas. Pengguna bertanya: '{text_message}'. Jawablah dengan ramah, singkat, dan edukatif."
+    
+    try:
+        ai_response = chat_model.generate_content(prompt)
+        return {"status": "success", "reply": ai_response.text.strip()}
+    except Exception as e:
+        return {"status": "error", "message": f"Gagal menghubungi AI: {str(e)}"}
+
 @app.post("/api/v1/diagnose_and_chat", tags=["Diagnosis & Advice"])
 def diagnose_and_chat(data: PatientData):
-    # --- 1. JALUR NINJA SCALER (7 Fitur Saja!) ---
-    # Scaler minta 7: ['BMI', 'MentHlth', 'PhysHlth', 'GenHlth', 'Age', 'Education', 'Income']
+    # --- JALUR SCALER (7 Fitur) ---
     scaler_input = np.array([[
         data.BMI,
-        0.0,            # MentHlth Dummy
-        0.0,            # PhysHlth Dummy
+        0.0,            
+        0.0,            
         data.GenHlth,
         data.Age,
-        5.0,            # Education Dummy
-        5.0             # Income Dummy
+        5.0,            
+        5.0             
     ]])
     
-    # Scale 7 data tersebut
     scaled_vals = scaler.transform(scaler_input)[0]
 
-    # --- 2. GABUNG KEMBALI JADI 14 FITUR UNTUK MODEL ---
+    # --- INPUT MODEL DEEP LEARNING (14 Fitur) ---
     final_input = np.array([[
-        scaled_vals[4],         # Age (Sudah di-scale)
+        scaled_vals[4],         
         data.Sex,
-        scaled_vals[0],         # BMI (Sudah di-scale)
+        scaled_vals[0],         
         data.Smoker,
         data.PhysActivity,
         data.Fruits,
@@ -117,11 +138,10 @@ def diagnose_and_chat(data: PatientData):
         data.Stroke,
         data.HeartDiseaseorAttack,
         data.CholCheck,
-        scaled_vals[3],         # GenHlth (Sudah di-scale)
+        scaled_vals[3],         
         data.SleepHours
     ]], dtype='float32')
 
-    # --- 3. PREDIKSI MODEL ML ---
     predictions = model.predict(final_input)[0]
     
     prob_diabetes = round(float(predictions[0]) * 100, 2)
@@ -130,19 +150,9 @@ def diagnose_and_chat(data: PatientData):
 
     prompt = f"Sebagai Dokter AI PERISAI, beri 1 paragraf nasihat gaya hidup untuk pasien dengan risiko Diabetes {prob_diabetes}%, Hipertensi {prob_hipertensi}%, Kolesterol {prob_kolesterol}%, BMI {data.BMI}, tidur {data.SleepHours} jam. Fokus pada penyakit berisiko tertinggi."
     
-    # --- 4. CHATBOT GEMINI DENGAN MODEL 1.5 FLASH ---
     try:
-        # PENTING: URL ini sudah diganti ke gemini-1.5-flash yang kuotanya aman!
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GOOGLE_API_KEY}"
-        payload = {"contents": [{"parts": [{"text": prompt}]}]}
-        resp = requests.post(url, json=payload).json()
-        
-        if "error" in resp:
-            error_msg = resp["error"].get("message", "Unknown API Error")
-            chatbot_message = f"AI Sedang Offline. (Error: {error_msg})"
-        else:
-            chatbot_message = resp["candidates"][0]["content"]["parts"][0]["text"].strip()
-            
+        ai_response = chat_model.generate_content(prompt)
+        chatbot_message = ai_response.text.strip()
     except Exception as e:
         chatbot_message = f"Sistem chatbot sedang sibuk, namun hasil analisamu aman. (Detail: {str(e)})"
 

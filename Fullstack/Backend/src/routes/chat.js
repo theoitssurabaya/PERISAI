@@ -12,7 +12,14 @@ router.post('/', async (req, res, next) => {
     const { message } = req.body
     if (!message) return res.status(400).json({ success: false, message: 'Pesan tidak boleh kosong' })
 
-    const response = await axios.post(`${AI_CHAT_URL}/api/v1/chat/general`, { message })
+    // --- JALUR AMAN BACKEND: Deteksi jika FE mengirim Object, ubah ke String ---
+    let cleanMessage = message;
+    if (typeof message === 'object') {
+      // Jika object tersebut punya properti teks internal, ambil teksnya. Jika tidak, stringify seluruhnya.
+      cleanMessage = message.text || message.message || JSON.stringify(message);
+    }
+
+    const response = await axios.post(`${AI_CHAT_URL}/api/v1/chat/general`, { message: cleanMessage })
     const data = response.data
     let reply
     // FastAPI return { status, reply } atau { status, message }
