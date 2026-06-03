@@ -74,19 +74,8 @@ Sebelum menjalankan server ML (Flask) dan Chatbot (FastAPI), Anda harus menginst
    pip install -r requirements.txt
    ```
 
-### Langkah 3: Menjalankan AI Microservice (Flask - Prediksi PTM)
-1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori ML Service:
-   ```bash
-   cd Fullstack/ML_Service
-   ```
-2. Jalankan server *Flask*:
-   ```bash
-   python3 app.py
-   ```
-   *(Tunggu hingga muncul pesan `Model loaded successfully` - berjalan di port 5001)*
-
-### Langkah 4: Menjalankan Chatbot AI API (FastAPI - Generative AI)
-1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori Chatbot API:
+### Langkah 3: Menjalankan AI Microservice Terpadu (FastAPI - Prediksi PTM & Generative AI)
+1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori AI API:
    ```bash
    cd ai_engineer/perisai_api
    ```
@@ -94,12 +83,12 @@ Sebelum menjalankan server ML (Flask) dan Chatbot (FastAPI), Anda harus menginst
    ```env
    GOOGLE_API_KEY=KUNCI_RAHASIA_ANDA
    ```
-3. Jalankan server *FastAPI*:
+3. Jalankan server *FastAPI* (yang kini juga menangani prediksi Model):
    ```bash
-   uvicorn perisai_api:app --port 8000
+   uvicorn perisai_api:app --port 8001
    ```
 
-### Langkah 5: Menjalankan Frontend (React UI)
+### Langkah 4: Menjalankan Frontend (React UI)
 1. Buka terminal **baru** dan masuk ke direktori Frontend:
    ```bash
    cd Fullstack/Frontend
@@ -130,7 +119,7 @@ Proyek ini secara ketat dirancang untuk memenuhi kriteria evaluasi model *Deep L
   - **Custom Callback**: Callback dinamis terintegrasi di dalam proses iterasi.
 - [x] **3. Ekspor Model Siap Produksi**: Model diekspor ke dalam format asli `.keras` (`perisai_model_production.keras`) dan diekstrak bobotnya (`.weights.h5`).
 - [x] **4. Kode Inference Mandiri**: Skrip pemuatan (*load*) model dan inferensi data real-time langsung dibangun ke dalam arsitektur REST (lihat `app.py`).
-- [x] **5. REST API Mandiri (Flask & FastAPI)**: Menggunakan **Flask** (`ML_Service/app.py` di Port 5001) untuk prediksi klasifikasi dan **FastAPI** (`ai_engineer/perisai_api/perisai_api.py` di Port 8000) untuk fitur Chatbot.
+- [x] **5. REST API Mandiri (FastAPI)**: Keseluruhan fusi prediksi klasifikasi *Machine Learning* dan asisten Chatbot *Generative AI* disatukan ke dalam satu Microservice AI **FastAPI** (`ai_engineer/perisai_api/perisai_api.py` di Port 8001).
 - [x] **6. Custom Training Loop (tf.GradientTape)**: Proses *training* **tidak menggunakan `model.fit()`**, melainkan murni ditulis dari nol secara matematis menggunakan *GradientTape*, pengumpulan *Loss*, perhitungan *Gradients*, hingga pembaruan ke *Optimizer*.
 - [x] **7. API Generative AI**: Terintegrasi secara *seamless* dengan **Google Gemini 2.0 Flash API** sebagai asisten Dokter AI dan pemberi nasihat medis dinamis.
 - [x] **8. TensorBoard Logs**: Pengumpulan metrik *epoch*, akurasi, dan error telah dicatat *(logged)* selama proses Custom Training Loop menggunakan `tf.summary` dan disertakan di dalam *repository* (folder `ai_engineer/logs`).

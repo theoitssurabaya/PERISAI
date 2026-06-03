@@ -3,7 +3,7 @@ const axios = require('axios')
 const UserProfile = require('../models/UserProfile')
 const HabitLog = require('../models/HabitLog')
 
-const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://127.0.0.1:5001'
+const ML_SERVICE_URL = process.env.ML_SERVICE_URL || 'http://127.0.0.1:8001/api/v1'
 
 const predict = async (req, res, next) => {
   try {

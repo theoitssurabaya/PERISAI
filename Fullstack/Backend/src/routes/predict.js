@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
     try {
-        const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:5001';
+        const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001/api/v1';
         
         // Forward the request to Python Microservice
         const response = await fetch(`${aiServiceUrl}/predict`, {

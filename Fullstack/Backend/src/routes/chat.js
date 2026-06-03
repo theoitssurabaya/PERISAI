@@ -3,7 +3,7 @@ const router = express.Router()
 const axios = require('axios')
 const authMiddleware = require('../middleware/auth')
 
-const AI_CHAT_URL = process.env.AI_CHAT_URL || 'http://127.0.0.1:8000'
+const AI_CHAT_URL = process.env.AI_CHAT_URL || 'http://127.0.0.1:8001'
 
 router.use(authMiddleware)
 
