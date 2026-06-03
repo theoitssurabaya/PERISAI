@@ -61,24 +61,46 @@ Anda perlu menjalankan ketiga servis (AI, Backend, dan Frontend) secara bersamaa
    npm run dev
    ```
 
-### Langkah 2: Menjalankan AI Microservice (Python)
-1. Buka terminal **baru** dan masuk ke direktori AI Service:
+### Langkah 2: Menyiapkan Virtual Environment & Dependencies Python
+Sebelum menjalankan server ML (Flask) dan Chatbot (FastAPI), Anda harus menginstal seluruh kebutuhan pustaka Python dari akar proyek:
+1. Buka terminal di **root folder** proyek.
+2. Buat dan aktifkan virtual environment (Opsional tapi disarankan):
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+3. Instal semua dependensi:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Langkah 3: Menjalankan AI Microservice (Flask - Prediksi PTM)
+1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori ML Service:
    ```bash
    cd Fullstack/ML_Service
    ```
-2. Aktifkan *Virtual Environment* (jika menggunakan) dan instal *requirements*:
-   ```bash
-   source ../../venv/bin/activate
-   pip install -r requirements.txt
-   ```
-3. Jalankan server *Flask*:
+2. Jalankan server *Flask*:
    ```bash
    python3 app.py
    ```
    *(Tunggu hingga muncul pesan `Model loaded successfully` - berjalan di port 5001)*
 
-### Langkah 3: Menjalankan Frontend (React UI)
-1. Buka terminal **baru** (ketiga) dan masuk ke direktori Frontend:
+### Langkah 4: Menjalankan Chatbot AI API (FastAPI - Generative AI)
+1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori Chatbot API:
+   ```bash
+   cd ai_engineer/perisai_api
+   ```
+2. Buat file `.env` di folder tersebut dan isi dengan Google API Key Anda:
+   ```env
+   GOOGLE_API_KEY=KUNCI_RAHASIA_ANDA
+   ```
+3. Jalankan server *FastAPI*:
+   ```bash
+   uvicorn perisai_api:app --port 8000
+   ```
+
+### Langkah 5: Menjalankan Frontend (React UI)
+1. Buka terminal **baru** dan masuk ke direktori Frontend:
    ```bash
    cd Fullstack/Frontend
    ```
@@ -95,6 +117,24 @@ Anda perlu menjalankan ketiga servis (AI, Backend, dan Frontend) secara bersamaa
    npm run dev
    ```
 5. **Selesai!** Buka tautan lokal yang muncul (biasanya `http://localhost:5173`) di *browser* Anda untuk menggunakan PERISAI.
+
+---
+
+## 🎯 Pencapaian Kriteria Evaluasi (Checklist)
+Proyek ini secara ketat dirancang untuk memenuhi kriteria evaluasi model *Deep Learning* tingkat lanjut:
+
+- [x] **1. TensorFlow Functional API / Subclassing**: Model dibangun menggunakan TensorFlow Keras `Functional API` dengan banyak *dense layer* bercabang (lihat `ai_engineer/1_model_training_and_evaluation.ipynb`).
+- [x] **2. Komponen Kustom (Custom Objects)**: Mengimplementasikan **tiga** komponen kustom sekaligus:
+  - **Custom Layer**: `AdvancedDenseLayer` dengan inisialisasi bobot *He-Normal*.
+  - **Custom Loss Function**: Kombinasi hibrida asimetris `BCE + (10 * MAE)`.
+  - **Custom Callback**: Callback dinamis terintegrasi di dalam proses iterasi.
+- [x] **3. Ekspor Model Siap Produksi**: Model diekspor ke dalam format asli `.keras` (`perisai_model_production.keras`) dan diekstrak bobotnya (`.weights.h5`).
+- [x] **4. Kode Inference Mandiri**: Skrip pemuatan (*load*) model dan inferensi data real-time langsung dibangun ke dalam arsitektur REST (lihat `app.py`).
+- [x] **5. REST API Mandiri (Flask & FastAPI)**: Menggunakan **Flask** (`ML_Service/app.py` di Port 5001) untuk prediksi klasifikasi dan **FastAPI** (`ai_engineer/perisai_api/perisai_api.py` di Port 8000) untuk fitur Chatbot.
+- [x] **6. Custom Training Loop (tf.GradientTape)**: Proses *training* **tidak menggunakan `model.fit()`**, melainkan murni ditulis dari nol secara matematis menggunakan *GradientTape*, pengumpulan *Loss*, perhitungan *Gradients*, hingga pembaruan ke *Optimizer*.
+- [x] **7. API Generative AI**: Terintegrasi secara *seamless* dengan **Google Gemini 2.0 Flash API** sebagai asisten Dokter AI dan pemberi nasihat medis dinamis.
+- [x] **8. TensorBoard Logs**: Pengumpulan metrik *epoch*, akurasi, dan error telah dicatat *(logged)* selama proses Custom Training Loop menggunakan `tf.summary` dan disertakan di dalam *repository* (folder `ai_engineer/logs`).
+- [x] **9. Performa Tinggi & Dokumentasi**: Melalui eksperimen tuning berlapis, model menunjukkan ROC-AUC dan presisi yang sangat kuat pada dataset imbalans BRFSS.
 
 ---
 *Proyek ini merupakan demonstrasi dari fusi Ilmu Data, Teknik Machine Learning, dan Rekayasa Perangkat Lunak Web Modern.*
