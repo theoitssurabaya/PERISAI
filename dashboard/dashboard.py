@@ -1,4 +1,5 @@
 import os
+import random
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -19,6 +20,26 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# ─── A/B Testing Setup ─────────────────────────────────────────────
+ab_group = st.query_params.get("variant", None)
+if ab_group not in ("A", "B"):
+    ab_group = random.choice(["A", "B"])
+    st.query_params["variant"] = ab_group
+
+if "ab_events" not in st.session_state:
+    st.session_state.ab_events = []
+    st.session_state.ab_start = pd.Timestamp.now()
+    st.session_state.ab_group = ab_group
+
+def log_event(event, data=None):
+    st.session_state.ab_events.append({
+        "event": event,
+        "data": data,
+        "time": pd.Timestamp.now(),
+        "group": st.session_state.ab_group
+    })
+# ───────────────────────────────────────────────────────────────────
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, '../data/ml_dataset_final_clean.csv')
 TARGETS = ['Diabetes', 'HighBP', 'HighChol']
@@ -36,7 +57,8 @@ AGE_CODE_MAP = {
 
 @st.cache_data
 def load_data():
-    df = pd.read_csv('../data/ml_dataset_final_clean.csv')
+    data_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'ml_dataset_final_clean.csv')
+    df = pd.read_csv(data_path)
     for c in TARGETS:
         df[c] = df[c].astype(int)
     for c in ['Smoker', 'PhysActivity', 'Fruits', 'Veggies', 'HvyAlcoholConsump', 'Stroke', 'HeartDiseaseorAttack', 'CholCheck', 'DiffWalk', 'Sex']:
@@ -54,10 +76,18 @@ with st.sidebar:
     st.markdown("---")
     menu = st.radio(
         "Navigasi",
-        ["📊 Ringkasan", "🔍 Eksplorasi Data", "🎮 What-If Simulation", "📋 Risk Assessment", "ℹ️ Tentang"]
+        ["📊 Ringkasan", "🔍 Eksplorasi Data", "🎮 What-If Simulation", "📋 Risk Assessment", "📊 A/B Test Analytics", "ℹ️ Tentang"]
     )
 
+    st.markdown("---")
+    st.markdown(f"🔄 **Varian {st.session_state.ab_group}**")
+    if st.button("📥 Export Log A/B Test"):
+        log_df = pd.DataFrame(st.session_state.ab_events)
+        csv = log_df.to_csv(index=False).encode('utf-8')
+        st.download_button("Download CSV", csv, "ab_test_log.csv", "text/csv")
+
 if menu == "📊 Ringkasan":
+    log_event("page_view", "Ringkasan")
     st.title("🏥 Dashboard Analisis Penyakit Tidak Menular")
     st.markdown("Dashboard interaktif untuk menganalisis risiko **Diabetes**, **Hipertensi**, dan **Kolesterol Tinggi** berdasarkan data gaya hidup dan kesehatan.")
 
@@ -72,6 +102,7 @@ if menu == "📊 Ringkasan":
         st.metric("Hipertensi", f"{df['HighBP'].mean()*100:.1f}%")
 
     st.markdown("### 📈 Prevalensi Penyakit Tidak Menular")
+    log_event("view_prevalensi")
     prev_data = pd.DataFrame({
         'Penyakit': [TARGET_LABELS[t] for t in TARGETS],
         'Terdiagnosis': [int(df[t].sum()) for t in TARGETS],
@@ -79,23 +110,43 @@ if menu == "📊 Ringkasan":
         'Persentase': [f"{df[t].mean()*100:.1f}%" for t in TARGETS]
     })
     cola, colb = st.columns([1, 1])
-    with cola:
-        fig, ax = plt.subplots(figsize=(8, 4), dpi=100)
-        x = np.arange(len(TARGETS))
-        w = 0.35
-        bars1 = ax.bar(x - w/2, prev_data['Normal'], w, label='Normal', color='#4CAF50')
-        bars2 = ax.bar(x + w/2, prev_data['Terdiagnosis'], w, label='Terdiagnosis', color='#F44336')
-        ax.set_xticks(x)
-        ax.set_xticklabels([TARGET_LABELS[t] for t in TARGETS])
-        ax.set_ylabel('Jumlah Responden')
-        ax.set_title('Perbandingan Kasus Diabetes, Hipertensi, & Kolesterol')
-        ax.legend()
-        for bar in bars1:
-            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 300, f'{int(bar.get_height()):,}', ha='center', va='bottom', fontsize=9)
-        for bar in bars2:
-            ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 300, f'{int(bar.get_height()):,}', ha='center', va='bottom', fontsize=9)
-        st.pyplot(fig)
-        plt.close(fig)
+
+    # ── A/B Test: Bar Chart (A) vs. Stacked Horizontal Bar (B) ──
+    if st.session_state.ab_group == "A":
+        with cola:
+            fig, ax = plt.subplots(figsize=(8, 4), dpi=100)
+            x = np.arange(len(TARGETS))
+            w = 0.35
+            bars1 = ax.bar(x - w/2, prev_data['Normal'], w, label='Normal', color='#4CAF50')
+            bars2 = ax.bar(x + w/2, prev_data['Terdiagnosis'], w, label='Terdiagnosis', color='#F44336')
+            ax.set_xticks(x)
+            ax.set_xticklabels([TARGET_LABELS[t] for t in TARGETS])
+            ax.set_ylabel('Jumlah Responden')
+            ax.set_title('Perbandingan Kasus (Bar Group)')
+            ax.legend()
+            for bar in bars1:
+                ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 300, f'{int(bar.get_height()):,}', ha='center', va='bottom', fontsize=9)
+            for bar in bars2:
+                ax.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 300, f'{int(bar.get_height()):,}', ha='center', va='bottom', fontsize=9)
+            st.pyplot(fig)
+            plt.close(fig)
+    else:
+        with cola:
+            plot_df = prev_data.set_index('Penyakit')[['Normal', 'Terdiagnosis']]
+            fig, ax = plt.subplots(figsize=(8, 4), dpi=100)
+            bars = plot_df.plot(kind='barh', stacked=True, ax=ax, color=['#4CAF50', '#F44336'])
+            ax.set_xlabel('Jumlah Responden')
+            ax.set_title('Perbandingan Kasus (Stacked Horizontal)')
+            ax.legend(loc='lower right')
+            for i in range(len(plot_df)):
+                n = plot_df.iloc[i, 0]
+                d = plot_df.iloc[i, 1]
+                ax.text(n / 2, i, f'{int(n):,}', ha='center', va='center', fontsize=9, color='white', fontweight='bold')
+                ax.text(n + d / 2, i, f'{int(d):,}', ha='center', va='center', fontsize=9, color='white', fontweight='bold')
+            st.pyplot(fig)
+            plt.close(fig)
+    # ────────────────────────────────────────────────────────────
+
     with colb:
         st.dataframe(prev_data, hide_index=True, use_container_width=True)
         st.markdown("""
@@ -431,6 +482,49 @@ elif menu == "📋 Risk Assessment":
             st.info(f"📋 **{n_risk} dari 3 penyakit terdeteksi berisiko.** Pertimbangkan perubahan gaya hidup.")
         else:
             st.success("✅ **Semua hasil normal.** Pertahankan gaya hidup sehat!")
+
+elif menu == "📊 A/B Test Analytics":
+    st.title("📊 A/B Test Analytics")
+    st.markdown("Ringkasan hasil A/B test **session ini**. Karena setiap user cuma dapat satu varian, agregasi data antar session perlu disimpan ke database eksternal.")
+
+    events_df = pd.DataFrame(st.session_state.ab_events)
+    if events_df.empty:
+        st.warning("Belum ada event tercatat.")
+    else:
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.metric("Varian Saat Ini", st.session_state.ab_group)
+        with col2:
+            st.metric("Total Events", len(events_df))
+        with col3:
+            st.metric("Jenis Event", events_df['event'].nunique())
+
+        st.markdown("### Timeline Event")
+        timeline = events_df[['time', 'event', 'data']].copy()
+        timeline['time'] = timeline['time'].dt.strftime('%H:%M:%S')
+        st.dataframe(timeline, use_container_width=True, hide_index=True)
+
+        st.markdown("### Frekuensi Event")
+        freq = events_df['event'].value_counts().reset_index()
+        freq.columns = ['Event', 'Jumlah']
+        fig, ax = plt.subplots(figsize=(8, 3), dpi=100)
+        ax.barh(freq['Event'], freq['Jumlah'], color='#2196F3')
+        ax.set_xlabel('Jumlah')
+        ax.set_title(f'Event Log — Varian {st.session_state.ab_group}')
+        for i, v in enumerate(freq['Jumlah']):
+            ax.text(v + 0.1, i, str(v), va='center', fontsize=10)
+        st.pyplot(fig)
+        plt.close(fig)
+
+        st.markdown("### 📤 Aggregasi Multi-Session")
+        st.info("""
+        Untuk lihat perbandingan A vs B secara akurat, simpan log ke database eksternal:
+        - **Google Sheets** via `gspread` → cocok untuk tim kecil
+        - **Supabase / PostgreSQL** → production scale
+        - **BigQuery** → skala besar
+
+        Export CSV di sidebar untuk analisis offline sementara.
+        """)
 
 elif menu == "ℹ️ Tentang":
     st.title("ℹ️ Tentang PERISAI")
