@@ -13,7 +13,7 @@ import os
 import google.generativeai as genai
 # JANGAN LUPA MASUKKAN API KEY KAMU DI SINI
 load_dotenv()
-GOOGLE_API_KEY = "AIzaSyDPYKsXCm5YPXbQxVv4nNKZfVlHHr49tOk"
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 app = FastAPI(
     title="PERISAI AI & Chatbot API",
