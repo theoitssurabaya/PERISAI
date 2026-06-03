@@ -12,20 +12,35 @@ function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [oauthLoading, setOauthLoading] = useState(null) // 'google' | 'facebook' | 'apple'
   const { login } = useAuth()
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
     e.preventDefault()
     if (!email || !password) return
-    // nanti diganti API call 
-    // login({ name: 'Ibra', email })
-    // navigate('/chat')
+    setLoading(true)
     try {
       await login(email, password)
       navigate('/chat')
     } catch (err) {
       alert(err.response?.data?.message || 'Login gagal')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleOAuthLogin = async (provider) => {
+    setOauthLoading(provider)
+    try {
+      // Redirect ke backend OAuth endpoint
+      // Backend akan redirect ke provider, lalu callback ke /api/auth/{provider}/callback
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+      window.location.href = `${apiBase}/api/auth/${provider}`
+    } catch (err) {
+      alert(`Login dengan ${provider} gagal. Coba lagi.`)
+      setOauthLoading(null)
     }
   }
 
@@ -84,8 +99,12 @@ function LoginPage() {
             </div>
           </div>
 
-          <button type="submit" className={`${s.btnPrimary} w-full text-center mt-2`}>
-            LOGIN
+          <button
+            type="submit"
+            disabled={loading}
+            className={`${s.btnPrimary} w-full text-center mt-2 disabled:opacity-60 disabled:cursor-not-allowed`}
+          >
+            {loading ? 'LOGGING IN...' : 'LOGIN'}
           </button>
         </form>
 
@@ -95,15 +114,45 @@ function LoginPage() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        <div className="flex justify-center gap-4 mb-6">
-          <button className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors">
-            <FcGoogle size={22} />
+        {/* Social Login Buttons */}
+        <div className="flex flex-col gap-3 mb-6">
+          <button
+            onClick={() => handleOAuthLogin('google')}
+            disabled={oauthLoading !== null}
+            className="flex items-center justify-center gap-3 w-full border border-gray-200 rounded-xl py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {oauthLoading === 'google' ? (
+              <span className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+            ) : (
+              <FcGoogle size={20} />
+            )}
+            <span className="text-sm font-medium text-[#0F172A]">Continue with Google</span>
           </button>
-          <button className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors">
-            <FaFacebook size={22} className="text-[#1877F2]" />
+
+          <button
+            onClick={() => handleOAuthLogin('facebook')}
+            disabled={oauthLoading !== null}
+            className="flex items-center justify-center gap-3 w-full border border-gray-200 rounded-xl py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {oauthLoading === 'facebook' ? (
+              <span className="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+            ) : (
+              <FaFacebook size={20} className="text-[#1877F2]" />
+            )}
+            <span className="text-sm font-medium text-[#0F172A]">Continue with Facebook</span>
           </button>
-          <button className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center hover:bg-blue-100 transition-colors">
-            <FaApple size={22} className="text-[#0F172A]" />
+
+          <button
+            onClick={() => handleOAuthLogin('apple')}
+            disabled={oauthLoading !== null}
+            className="flex items-center justify-center gap-3 w-full border border-gray-200 rounded-xl py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {oauthLoading === 'apple' ? (
+              <span className="w-5 h-5 border-2 border-gray-300 border-t-gray-800 rounded-full animate-spin" />
+            ) : (
+              <FaApple size={20} className="text-[#0F172A]" />
+            )}
+            <span className="text-sm font-medium text-[#0F172A]">Continue with Apple</span>
           </button>
         </div>
 
