@@ -19,7 +19,7 @@ router.post('/', async (req, res, next) => {
     // const reply = data.reply || data.message || 'Maaf, AI sedang tidak tersedia.'
     // console.log('FastAPI response:', response.data)
     if (data.status === 'error') {
-      reply = 'Maaf, AI Chat sedang tidak tersedia saat ini. Silakan coba lagi nanti.'
+      reply = data.message || 'Maaf, AI Chat sedang tidak tersedia saat ini. Silakan coba lagi nanti.'
     } else {
       reply = data.reply || 'Maaf, tidak ada respons dari AI.'
     }
