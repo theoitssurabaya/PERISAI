@@ -86,7 +86,7 @@ function HabitLogPage() {
             <p className={s.pageSubtitle}>Bagaimana perasaanmu hari ini? Ayo cepat catat kebiasaanmu untuk menjaga perisaimu tetap kuat.</p>
 
             {/* Date Navigator */}
-            <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 mt-4 mb-2 max-w-sm">
+            <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 mt-4 mb-2 max-w-full sm:max-w-sm">
                 <button
                     onClick={goToPrev}
                     disabled={isMinDate}
@@ -114,7 +114,7 @@ function HabitLogPage() {
                 </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
 
                 {/* Daily Nutrition */}
                 <div className={s.card}>

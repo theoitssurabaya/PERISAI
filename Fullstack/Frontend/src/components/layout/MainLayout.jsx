@@ -11,8 +11,12 @@ function MainLayout() {
       <Navbar
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
       />
-      <Sidebar isOpen={sidebarOpen} />
-      <main className={`pt-16 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-0'}`}>
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
+      {/* On mobile: no margin shift (sidebar overlays). On sm+: shift when open */}
+      <main className={`pt-14 sm:pt-16 transition-all duration-300 ${sidebarOpen ? 'sm:ml-64' : 'ml-0'}`}>
         <Outlet />
       </main>
     </div>

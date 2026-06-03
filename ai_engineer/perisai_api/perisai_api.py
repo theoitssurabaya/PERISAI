@@ -1,18 +1,18 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from dotenv import load_dotenv
 import tensorflow as tf
 import joblib
 import numpy as np
-import google.generativeai as genai
+import requests
 import os
 
 # ==========================================
-# 1. SETUP GEMINI API
+# 1. SETUP GEMINI API (MENGGUNAKAN REST API)
 # ==========================================
 # JANGAN LUPA MASUKKAN API KEY KAMU DI SINI
-GOOGLE_API_KEY = "TARUH_API_KEY_GEMINI_DISINI" 
-genai.configure(api_key=GOOGLE_API_KEY)
-chat_model = genai.GenerativeModel('gemini-1.5-flash')
+load_dotenv()
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 app = FastAPI(
     title="PERISAI AI & Chatbot API",
@@ -89,8 +89,16 @@ class PatientData(BaseModel):
 def general_chat(req: GeneralChatRequest):
     prompt = f"Kamu adalah 'Dokter AI PERISAI', asisten kesehatan cerdas. Pengguna anonim bertanya: '{req.message}'. Jawablah dengan ramah, singkat, dan edukatif."
     try:
-        response = chat_model.generate_content(prompt)
-        return {"status": "success", "reply": response.text.strip()}
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        resp = requests.post(url, json=payload).json()
+        
+        if "error" in resp:
+            error_msg = resp["error"].get("message", "Unknown API Error")
+            return {"status": "error", "message": f"API Error: {error_msg}"}
+            
+        reply_text = resp["candidates"][0]["content"]["parts"][0]["text"]
+        return {"status": "success", "reply": reply_text.strip()}
     except Exception as e:
         return {"status": "error", "message": f"Gagal menghubungi AI: {str(e)}"}
 
@@ -113,8 +121,10 @@ def diagnose_and_chat(data: PatientData):
     prompt = f"Sebagai Dokter AI PERISAI, beri 1 paragraf nasihat gaya hidup untuk pasien dengan risiko Diabetes {prob_diabetes}%, Hipertensi {prob_hipertensi}%, Kolesterol {prob_kolesterol}%, BMI {data.BMI}, tidur {data.SleepHours} jam. Fokus pada penyakit berisiko tertinggi."
     
     try:
-        ai_response = chat_model.generate_content(prompt)
-        chatbot_message = ai_response.text.strip()
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
+        payload = {"contents": [{"parts": [{"text": prompt}]}]}
+        resp = requests.post(url, json=payload).json()
+        chatbot_message = resp["candidates"][0]["content"]["parts"][0]["text"].strip()
     except Exception:
         chatbot_message = "Sistem chatbot sedang sibuk, namun hasil analisamu aman."
 

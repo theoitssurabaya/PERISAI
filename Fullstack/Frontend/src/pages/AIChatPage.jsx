@@ -7,7 +7,9 @@ import api from '../services/api'
 
 function AIChatPage() {
     const [message, setMessage] = useState('')
+    const [messages, setMessages] = useState([])
     const { isLoggedIn } = useAuth()
+    const [loading, setLoading] = useState(false)
     const [checkedIn, setCheckedIn] = useState(() => {
         const today = new Date().toDateString()
         return localStorage.getItem('lastCheckin') === today
@@ -15,21 +17,36 @@ function AIChatPage() {
 
     const showModal = isLoggedIn && !checkedIn
 
-    const handleSend = () => {
-        if (!message.trim()) return
-        console.log('Sending:', message)
+    const handleSend = async () => {
+        if (!message.trim() || loading) return
+
+        const userMsg = { role: 'user', text: message }
+        setMessages(prev => [...prev, userMsg])
         setMessage('')
+        setLoading(true)
+
+        try {
+            const res = await api.post('/api/chat', { message: userMsg.text })
+            console.log('Response:', res.data)
+            setMessages(prev => [...prev, { role: 'ai', text: res.data.reply }])
+        } catch {
+            setMessages(prev => [...prev, { role: 'ai', text: 'Maaf, terjadi kesalahan. Coba lagi ya!' }])
+        } finally {
+            setLoading(false)
+        }
     }
 
     const handleSubmit = async (data) => {
         try {
-            await api.post('/api/habit-log', data)
+            console.log('Data yang dikirim:', data)
+            const res = await api.post('/api/habit-log', data)
+            console.log('Response:', res.data)
             const today = new Date().toDateString()
             localStorage.setItem('lastCheckin', today)
             localStorage.setItem('checkinData', JSON.stringify(data))
             setCheckedIn(true)
         } catch (err) {
-            console.error('Gagal simpan habit log:', err)
+            console.error('Error simpan habit log:', err.response?.data || err.message)
             // tetap simpan ke localStorage sebagai fallback
             const today = new Date().toDateString()
             localStorage.setItem('lastCheckin', today)
@@ -47,7 +64,7 @@ function AIChatPage() {
     ]
 
     return (
-        <div className="flex flex-col h-[calc(100vh-4rem)] relative">
+        <div className="flex flex-col h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] relative">
 
             {showModal && (
                 <DailyCheckInModal
@@ -55,9 +72,9 @@ function AIChatPage() {
                     onSubmit={handleSubmit}
                 />
             )}
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col justify-end">
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col gap-3">
                 {/* Suggestion chips, muncul kalau belum ada chat */}
-                <div className="flex flex-wrap gap-2 justify-center mb-4">
+                <div className="flex flex-wrap gap-2 justify-center mt-auto pt-20 sm:pt-40">
                     {suggestions.map((s, i) => (
                         <button
                             key={i}
@@ -68,9 +85,35 @@ function AIChatPage() {
                         </button>
                     ))}
                 </div>
+                {/* Chat messages */}
+
+                {messages.map((msg, i) => (
+                    <div
+                        key={i}
+                        className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                    >
+                        <div
+                            className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm leading-relaxed
+                ${msg.role === 'user'
+                                    ? 'bg-[#3B82F6] text-white rounded-br-sm'
+                                    : 'bg-white text-[#0F172A] border border-gray-200 rounded-bl-sm'
+                                }`}
+                        >
+                            {msg.text}
+                        </div>
+                    </div>
+                ))}
+
+                {loading && (
+                    <div className="flex justify-start">
+                        <div className="bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 text-sm text-[#64748B]">
+                            Sedang mengetik...
+                        </div>
+                    </div>
+                )}
             </div>
 
-            <div className="p-6 flex justify-center">
+            <div className="p-3 sm:p-6 flex justify-center">
                 <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
                     <textarea
                         value={message}
