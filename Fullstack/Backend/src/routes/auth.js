@@ -5,7 +5,7 @@ const {
   googleRedirect, googleCallback,
   facebookRedirect, facebookCallback,
   appleRedirect, appleCallback,
-} = require('../controllers/oauthController')
+} = require('../controllers/OauthController')
 const authMiddleware = require('../middleware/auth')
 
 // Email/Password
