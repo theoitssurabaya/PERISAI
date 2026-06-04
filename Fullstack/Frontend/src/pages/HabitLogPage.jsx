@@ -6,24 +6,32 @@ import api from '../services/api'
 import { useAuth } from '../context/useAuth'
 
 function HabitLogPage() {
-    const { isLoggedIn } = useAuth()
+    const { isLoggedIn, user } = useAuth()
     const [logData, setLogData] = useState(null)
     const [loading, setLoading] = useState(true)
     const [currentDate, setCurrentDate] = useState(new Date())
-    const { user } = useAuth()
 
     useEffect(() => {
         if (!isLoggedIn) {
-            Promise.resolve().then(() => setLoading(false))
+            setLoading(false)
             return
         }
-        const dateStr = currentDate.toISOString().split('T')[0]
+        
+        setLoading(true)
+        // Memastikan format YYYY-MM-DD menggunakan waktu lokal, bukan UTC agar tanggal tidak bergeser
+        const offset = currentDate.getTimezoneOffset()
+        const localDate = new Date(currentDate.getTime() - (offset * 60 * 1000))
+        const dateStr = localDate.toISOString().split('T')[0]
+
         api.get(`/api/habit-log?date=${dateStr}`)
             .then(res => {
                 setLogData(res.data.data)
                 setLoading(false)
             })
-            .catch(() => setLoading(false))
+            .catch(() => {
+                setLogData(null)
+                setLoading(false)
+            })
     }, [isLoggedIn, currentDate])
 
     const meals = logData?.meals ?? '-'
@@ -34,26 +42,26 @@ function HabitLogPage() {
     const sleepHours = logData?.sleep_hours ?? 0
     const stressLevel = logData?.stress_level ?? null
 
-
     const foodOptions = ['Sayuran Segar', 'Protein Rendah Lemak', 'Cemilan Manis', 'Makanan Cepat Saji', 'Biji-Bijian Utuh']
     const intensityOptions = ['Rendah', 'Sedang', 'Tinggi']
+    
     const isToday = new Date().toDateString() === currentDate.toDateString()
 
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
+    // Batasan navigasi 6 hari ke belakang dengan logika aman (bebas mutasi langsung)
+    const todayTimestamp = new Date().setHours(0, 0, 0, 0)
+    const minDateLimit = new Date(todayTimestamp - 6 * 24 * 60 * 60 * 1000)
+    const isMinDate = currentDate <= minDateLimit
 
-    const minDate = new Date(today)
-    minDate.setDate(minDate.getDate() - 6)
+    // Mendapatkan nama hari lokal singkat (e.g., 'Sen', 'Sel', 'Rab')
+    const currentDayName = currentDate.toLocaleDateString('id-ID', { weekday: 'short' })
 
-    const isMinDate = currentDate <= minDate
-
-    const sleepData = [
-        { day: 'Mon', hours: sleepHours },
-        { day: 'Tue', hours: sleepHours },
-        { day: 'Wed', hours: sleepHours },
-        { day: 'Thu', hours: sleepHours },
-        { day: 'Fri', hours: sleepHours },
-    ]
+    // Memetakan grafik tidur agar data jam tidur hanya muncul proporsional di hari yang dipilih
+    const daysOfWeek = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
+    const sleepData = daysOfWeek.map(day => ({
+        day,
+        hours: day === currentDayName ? sleepHours : 0,
+        isActive: day === currentDayName
+    }))
 
     const goToPrev = () => {
         if (isMinDate) return
@@ -78,24 +86,24 @@ function HabitLogPage() {
         })
     }
 
-    if (loading) return <div className="p-6 text-[#64748B]">Loading...</div>
+    if (loading) return <div className="p-6 text-[#64748B] font-medium animate-pulse">Memuat data log harian...</div>
 
     return (
         <div className={s.pageWrapper}>
             <h1 className={s.pageTitle}>Halo, {user?.name || 'Pengguna'}!</h1>
             <p className={s.pageSubtitle}>Bagaimana perasaanmu hari ini? Ayo cepat catat kebiasaanmu untuk menjaga perisaimu tetap kuat.</p>
 
-            {/* Date Navigator */}
-            <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 mt-4 mb-2 max-w-full sm:max-w-sm">
+            {/* Navigator Tanggal */}
+            <div className="flex items-center justify-between bg-white rounded-2xl border border-gray-200 px-4 py-3 mt-4 mb-2 max-w-full sm:max-w-sm shadow-sm">
                 <button
                     onClick={goToPrev}
                     disabled={isMinDate}
-                    className="text-[#64748B] hover:text-[#0F172A] transition-colors"
+                    className={`transition-colors ${isMinDate ? 'text-gray-300 cursor-not-allowed' : 'text-[#64748B] hover:text-[#0F172A]'}`}
                 >
                     <IoChevronBackOutline size={20} />
                 </button>
 
-                <span className="text-sm font-medium text-[#0F172A]">
+                <span className="text-sm font-semibold text-[#0F172A] select-none">
                     {isToday ? `Hari ini, ${formatDate(currentDate)}` : formatDate(currentDate)}
                 </span>
 
@@ -108,15 +116,17 @@ function HabitLogPage() {
                 </button>
             </div>
 
+            {/* Alert Data Kosong */}
             {!logData && (
-                <div className="mt-4 mb-2 px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-700">
-                    Belum ada data untuk hari ini. Isi check-in harian kamu dulu ya!
+                <div className="mt-4 mb-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl text-sm text-amber-800 font-medium">
+                    Belum ada data untuk tanggal ini. Silakan isi check-in harian kamu terlebih dahulu!
                 </div>
             )}
 
+            {/* Grid Konten */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
 
-                {/* Daily Nutrition */}
+                {/* Nutrisi Harian */}
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🍽️</span>
@@ -124,28 +134,31 @@ function HabitLogPage() {
                     </div>
 
                     <p className="text-sm text-[#64748B] mb-3">Berapa banyak makanan yang kamu makan hari ini?</p>
-                    <div className="flex items-center gap-4 bg-gray-100 rounded-full px-4 py-2 w-fit mb-4">
-                        <span className="font-semibold text-[#0F172A] w-4 text-center">{meals}</span>
+                    <div className="flex items-center gap-4 bg-gray-100 rounded-full px-4 py-1.5 w-fit mb-4">
+                        <span className="font-bold text-[#0F172A] text-sm">{meals} Kali Makan</span>
                     </div>
 
                     <p className="text-sm text-[#64748B] mb-3">Makanan apa saja yang kamu makan?</p>
                     <div className="flex flex-wrap gap-2">
-                        {foodOptions.map(food => (
-                            <span
-                                key={food}
-                                className={`text-sm px-4 py-1.5 rounded-full border
-                                    ${selectedFoods.includes(food)
-                                        ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                                        : 'bg-white text-[#0F172A] border-gray-300'
-                                    }`}
-                            >
-                                {food}
-                            </span>
-                        ))}
+                        {foodOptions.map(food => {
+                            const isSelected = selectedFoods.includes(food);
+                            return (
+                                <span
+                                    key={food}
+                                    className={`text-xs sm:text-sm px-3.5 py-1.5 rounded-full border transition-all font-medium
+                                        ${isSelected
+                                            ? 'bg-[#3B82F6] text-white border-[#3B82F6] shadow-sm'
+                                            : 'bg-white text-[#475569] border-gray-200'
+                                        }`}
+                                >
+                                    {food}
+                                </span>
+                            );
+                        })}
                     </div>
                 </div>
 
-                {/* Physical Activity */}
+                {/* Aktivitas Fisik */}
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🏃</span>
@@ -153,25 +166,25 @@ function HabitLogPage() {
                     </div>
 
                     <div className="flex items-center justify-between mb-4">
-                        <span className="text-sm text-[#0F172A]">Apakah kamu berolahraga?</span>
-                        <span className={`text-sm px-4 py-1 rounded-full border
+                        <span className="text-sm font-medium text-[#0F172A]">Apakah kamu berolahraga?</span>
+                        <span className={`text-sm px-4 py-1 rounded-full border font-semibold
                             ${exercised
-                                ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                                : 'bg-white text-[#0F172A] border-gray-300'
+                                ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                                : 'bg-gray-50 text-gray-500 border-gray-200'
                             }`}>
                             {exercised ? 'Ya' : 'Tidak'}
                         </span>
                     </div>
 
-                    <p className="text-sm text-[#0F172A] mb-2">Intensitas</p>
+                    <p className="text-sm font-medium text-[#0F172A] mb-2">Intensitas Latihan</p>
                     <div className="flex gap-2 mb-4">
                         {intensityOptions.map(opt => (
                             <span
                                 key={opt}
-                                className={`flex-1 text-sm py-1.5 rounded-full border text-center
+                                className={`flex-1 text-sm py-1.5 rounded-xl border text-center font-medium transition-all
                                     ${intensity === opt
-                                        ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                                        : 'bg-white text-[#0F172A] border-gray-300'
+                                        ? 'bg-[#3B82F6] text-white border-[#3B82F6] shadow-sm'
+                                        : 'bg-gray-50 text-gray-400 border-gray-200'
                                     }`}
                             >
                                 {opt}
@@ -180,65 +193,83 @@ function HabitLogPage() {
                     </div>
 
                     <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-[#0F172A]">Langkah Harian</span>
-                        <span className="text-sm text-[#64748B]">{steps.toLocaleString()}/10K</span>
+                        <span className="text-sm font-medium text-[#0F172A]">Langkah Harian</span>
+                        <span className="text-sm font-bold text-[#3B82F6]">{steps.toLocaleString()} <span className="text-gray-400 font-normal">/ 10.000</span></span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                         <div
-                            className="bg-[#3B82F6] h-2 rounded-full transition-all"
-                            style={{ width: `${(steps / 10000) * 100}%` }}
+                            className="bg-[#3B82F6] h-2.5 rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min((steps / 10000) * 100, 100)}%` }}
                         />
                     </div>
                 </div>
 
-                {/* Sleep Quality */}
+                {/* Kualitas Tidur */}
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-2">
                         <span className="text-xl">🌙</span>
                         <h2 className={s.sectionTitle}>Kualitas Tidur</h2>
                     </div>
-                    <p className="text-3xl font-bold text-[#0F172A] text-center mt-2">{sleepHours}</p>
-                    <p className="text-sm text-[#64748B] text-center mb-4">Jam Tidur</p>
+                    <div className="text-center my-3">
+                        <p className="text-4xl font-extrabold text-[#0F172A]">{sleepHours}</p>
+                        <p className="text-xs text-[#64748B] font-medium mt-0.5">Jam Tidur</p>
+                    </div>
 
-                    <ResponsiveContainer width="100%" height={100}>
-                        <BarChart data={sleepData} barSize={32}>
-                            <XAxis dataKey="day" hide />
-                            <Bar
-                                dataKey="hours"
-                                fill="#3B82F6"
-                                radius={[4, 4, 0, 0]}
-                                opacity={0.6}
-                            />
-                        </BarChart>
-                    </ResponsiveContainer>
+                    <div className="w-full h-[100px] min-h-[100px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={sleepData} barSize={24} margin={{ top: 10, bottom: 5 }}>
+                                <XAxis dataKey="day" tick={{ fill: '#94A3B8', fontSize: 11 }} axisLine={false} tickLine={false} />
+                                <Bar
+                                    dataKey="hours"
+                                    radius={[4, 4, 0, 0]}
+                                    // Bar warna biru solid khusus hari yang dipilih, abu-abu transparan untuk hari lain
+                                    fill="#3B82F6"
+                                    shape={(props) => {
+                                        const { x, y, width, height, payload } = props;
+                                        return (
+                                            <rect
+                                                x={x}
+                                                y={y}
+                                                width={width}
+                                                height={height}
+                                                rx={4}
+                                                ry={4}
+                                                fill={payload.isActive ? '#3B82F6' : '#E2E8F0'}
+                                            />
+                                        );
+                                    }}
+                                />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                 </div>
 
-                {/* Stress Level */}
+                {/* Tingkat Stres */}
                 <div className={s.card}>
                     <div className="flex items-center gap-2 mb-4">
                         <span className="text-xl">🧠</span>
                         <h2 className={s.sectionTitle}>Tingkat Stres</h2>
                     </div>
 
-                    <p className="text-sm text-[#64748B] mb-6">Bagaimana perasaanmu hari ini?</p>
+                    <p className="text-sm text-[#64748B] mb-5">Bagaimana kondisi psikologis Anda hari ini?</p>
 
-                    <div className="flex justify-between gap-2 mb-2">
+                    <div className="flex justify-between gap-1.5 mb-3">
                         {[1, 2, 3, 4, 5].map(level => (
                             <div
                                 key={level}
-                                className={`w-12 h-12 rounded-full border-2 font-semibold text-sm flex items-center justify-center
+                                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 font-bold text-sm flex items-center justify-center transition-all select-none
                                     ${stressLevel === level
-                                        ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
-                                        : 'bg-gray-100 text-[#0F172A] border-transparent'
+                                        ? 'bg-[#3B82F6] text-white border-[#3B82F6] scale-105 shadow-md'
+                                        : 'bg-gray-50 text-gray-400 border-transparent'
                                     }`}
                             >
                                 {level}
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-between text-xs text-[#64748B] px-1">
-                        <span>Tenang</span>
-                        <span>Stres</span>
+                    <div className="flex justify-between text-xs font-semibold text-[#64748B] px-1">
+                        <span className="text-emerald-600">Tenang (1)</span>
+                        <span className="text-red-500">Stres Berat (5)</span>
                     </div>
                 </div>
 

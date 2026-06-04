@@ -79,10 +79,7 @@ function ProfilePage() {
       <h1 className={s.pageTitle}>Profil Kesehatan</h1>
       <p className={s.pageSubtitle}>Lengkapi data ini untuk mendapatkan prediksi risiko yang akurat.</p>
 
-      <form
-        onSubmit={handleSubmit}
-        className="mt-6 w-full max-w-7xl mx-auto flex flex-col gap-6"
-      >
+      <form onSubmit={handleSubmit} className="mt-6 max-w-2xl w-full mx-auto flex flex-col gap-4">
 
         {error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">{error}</div>}
         {success && <div className="bg-green-50 border border-green-200 text-green-600 text-sm px-4 py-3 rounded-xl">{success}</div>}
@@ -167,9 +164,9 @@ function ProfilePage() {
               { key: 'fruits', label: 'Apakah kamu rutin makan buah?' },
               { key: 'veggies', label: 'Apakah kamu rutin makan sayur?' },
             ].map(({ key, label }) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="text-sm text-[#0F172A]">{label}</span>
-                <div className="flex gap-2">
+              <div key={key} className="flex items-start sm:items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                <span className="text-sm text-[#0F172A] flex-1">{label}</span>
+                <div className="flex gap-2 shrink-0">
                   {[{ label: 'Ya', value: 1 }, { label: 'Tidak', value: 0 }].map(opt => (
                     <button
                       key={opt.value}
@@ -201,9 +198,9 @@ function ProfilePage() {
               { key: 'heart_disease', label: 'Apakah kamu pernah penyakit jantung?' },
               { key: 'chol_check', label: 'Apakah kamu pernah cek kolesterol?' },
             ].map(({ key, label }) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="text-sm text-[#0F172A]">{label}</span>
-                <div className="flex gap-2">
+              <div key={key} className="flex items-start sm:items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                <span className="text-sm text-[#0F172A] flex-1">{label}</span>
+                <div className="flex gap-2 shrink-0">
                   {[{ label: 'Ya', value: 1 }, { label: 'Tidak', value: 0 }].map(opt => (
                     <button
                       key={opt.value}
@@ -226,7 +223,7 @@ function ProfilePage() {
           {/* Kesehatan Umum */}
           <div className="mt-4">
             <p className="text-sm text-[#0F172A] mb-2">Bagaimana kondisi kesehatan kamu secara umum?</p>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {[
                 { label: 'Sangat Baik', value: 1 },
                 { label: 'Baik', value: 2 },
@@ -238,7 +235,7 @@ function ProfilePage() {
                   key={opt.value}
                   type="button"
                   onClick={() => handleChange('gen_hlth', opt.value)}
-                  className={`flex-1 text-xs py-2 rounded-xl border transition-colors
+                  className={`flex-1 min-w-[80px] text-xs py-2 rounded-xl border transition-colors
                     ${form.gen_hlth === opt.value
                       ? 'bg-[#3B82F6] text-white border-[#3B82F6]'
                       : 'bg-white text-[#0F172A] border-gray-300 hover:border-[#3B82F6]'
