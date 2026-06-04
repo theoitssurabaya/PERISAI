@@ -28,12 +28,23 @@ function ResetPasswordPage() {
     setLoading(true)
     try {
       const apiBase = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : 'http://localhost:5000'
-      const response = await fetch(`${apiBase}/api/auth/reset-password`, {
+    //   const response = await fetch(`${apiBase}/api/auth/reset-password`, {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify({ email, newPassword })
+    //   })
+    const cleanUrl = new URL('/api/auth/reset-password', apiBase).toString()
+    const response = await fetch(cleanUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, newPassword })
-      })
+    })
 
+    const contentType = response.headers.get("content-type")
+        if (!contentType || !contentType.includes("application/json")) {
+        throw new Error(`Server mengembalikan respons non-JSON (Status: ${response.status}). Pastikan rute backend aman.`)
+    }
+    
       const data = await response.json()
       if (!response.ok) throw new Error(data.message || 'Gagal memperbarui password')
 
