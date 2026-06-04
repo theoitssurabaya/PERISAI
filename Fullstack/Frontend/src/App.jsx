@@ -7,6 +7,8 @@ import RegisterPage from './pages/RegisterPage'
 import RiskProfilePage from './pages/RiskProfilePage'
 import MedicalRecordsPage from './pages/MedicalRecordsPage'
 import ProfilePage from './pages/ProfilePage'
+import HelpPage from './pages/HelpPage'
+import PrivacyPage from './pages/PrivacyPage'
 
 
 
@@ -25,6 +27,8 @@ function App() {
         <Route path="risk-profile" element={<RiskProfilePage />} />
         <Route path="/medical-records" element={<MedicalRecordsPage />} />
         <Route path="profile" element={<ProfilePage />} />
+        <Route path="help" element={<HelpPage />} />
+        <Route path="privacy" element={<PrivacyPage />} />
       </Route>
     </Routes>
   )

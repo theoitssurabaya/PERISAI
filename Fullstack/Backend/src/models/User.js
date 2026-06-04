@@ -17,6 +17,15 @@ const User = {
     return result.rows[0]
   },
 
+  // Untuk user yang daftar via OAuth (tidak punya password)
+  async createOAuth({ name, email }) {
+    const result = await pool.query(
+      'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
+      [name, email, null]
+    )
+    return result.rows[0]
+  },
+
   async findById(id) {
     const result = await pool.query(
       'SELECT id, name, email, created_at FROM users WHERE id = $1',
