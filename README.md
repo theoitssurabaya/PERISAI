@@ -1,4 +1,12 @@
-﻿# PERISAI (Prediksi Risiko Penyakit Tidak Menular)
+---
+title: PERISAI - Prediksi Risiko PTM
+emoji: 🛡️
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+ # PERISAI (Prediksi Risiko Penyakit Tidak Menular)
 
 PERISAI adalah sebuah sistem *Fullstack Web Application* berbasis *Artificial Intelligence* (AI) yang dirancang untuk menganalisis gaya hidup dan rekam medis pasien guna memprediksi risiko 3 Penyakit Tidak Menular (PTM) utama: **Diabetes, Hipertensi (HighBP), dan Kolesterol Tinggi (HighChol)**.
 
