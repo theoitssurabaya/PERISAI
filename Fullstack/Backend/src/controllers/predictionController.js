@@ -75,6 +75,18 @@ const predict = async (req, res, next) => {
   }
 }
 
+const getHistory = async (req, res, next) => {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM predictions WHERE user_id = $1 ORDER BY predicted_at DESC LIMIT 30',
+      [req.userId]
+    )
+    res.json({ success: true, data: result.rows })
+  } catch (err) {
+    next(err)
+  }
+}
+
 const getLatest = async (req, res, next) => {
   try {
     const result = await pool.query(
@@ -87,4 +99,4 @@ const getLatest = async (req, res, next) => {
   }
 }
 
-module.exports = { predict, getLatest }
+module.exports = { predict, getLatest, getHistory }
