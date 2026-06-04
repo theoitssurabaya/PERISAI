@@ -34,8 +34,8 @@ function LoginPage() {
   const handleOAuthLogin = async (provider) => {
     setOauthLoading(provider)
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-      window.location.href = `${apiBase}/api/auth/${provider}`
+      const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, "");
+      window.location.href = `${apiBase}/api/auth/${provider}`;
     } catch (err) {
       alert(`Login dengan ${provider} gagal. Coba lagi.`)
       setOauthLoading(null)
