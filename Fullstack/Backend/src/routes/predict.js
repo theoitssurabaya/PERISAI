@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 router.post('/', async (req, res) => {
+    console.log('AI Service URL:', process.env.AI_SERVICE_URL);
     try {
         const aiServiceUrl = process.env.AI_SERVICE_URL || 'http://127.0.0.1:8001/api/v1';
         
