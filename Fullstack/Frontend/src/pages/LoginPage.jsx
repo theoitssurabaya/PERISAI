@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { MdOutlineEmail, MdLockOutline } from 'react-icons/md'
 import { FcGoogle } from 'react-icons/fc'
-import { FaFacebook, FaApple } from 'react-icons/fa'
+import { FaFacebook/*, FaApple*/ } from 'react-icons/fa'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
 import logoIcon from '../assets/Perisai.png'
 import { useAuth } from '../context/useAuth'
@@ -13,7 +13,7 @@ function LoginPage() {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [oauthLoading, setOauthLoading] = useState(null) // 'google' | 'facebook' | 'apple'
+  const [oauthLoading, setOauthLoading] = useState(null) // 'google' | 'facebook' /* | 'apple' */
   const { login } = useAuth()
   const navigate = useNavigate()
 
@@ -34,8 +34,6 @@ function LoginPage() {
   const handleOAuthLogin = async (provider) => {
     setOauthLoading(provider)
     try {
-      // Redirect ke backend OAuth endpoint
-      // Backend akan redirect ke provider, lalu callback ke /api/auth/{provider}/callback
       const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000'
       window.location.href = `${apiBase}/api/auth/${provider}`
     } catch (err) {
@@ -142,6 +140,7 @@ function LoginPage() {
             <span className="text-sm font-medium text-[#0F172A]">Continue with Facebook</span>
           </button>
 
+          {/* Apple Login - coming soon (butuh Apple Developer Account $99/tahun)
           <button
             onClick={() => handleOAuthLogin('apple')}
             disabled={oauthLoading !== null}
@@ -154,6 +153,7 @@ function LoginPage() {
             )}
             <span className="text-sm font-medium text-[#0F172A]">Continue with Apple</span>
           </button>
+          */}
         </div>
 
         <p className="text-center text-xs text-[#64748B]">

@@ -4,8 +4,8 @@ const { register, login, me } = require('../controllers/authController')
 const {
   googleRedirect, googleCallback,
   facebookRedirect, facebookCallback,
-  appleRedirect, appleCallback,
-} = require('../controllers/OauthController')
+  // appleRedirect, appleCallback,
+} = require('../controllers/oauthController')
 const authMiddleware = require('../middleware/auth')
 
 // Email/Password
@@ -21,8 +21,8 @@ router.get('/google/callback', googleCallback)
 router.get('/facebook', facebookRedirect)
 router.get('/facebook/callback', facebookCallback)
 
-// Apple OAuth (Apple menggunakan POST untuk callback)
-router.get('/apple', appleRedirect)
-router.post('/apple/callback', appleCallback)
+// Apple OAuth - coming soon (butuh Apple Developer Account $99/tahun)
+// router.get('/apple', appleRedirect)
+// router.post('/apple/callback', appleCallback)
 
 module.exports = router
