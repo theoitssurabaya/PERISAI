@@ -14,13 +14,13 @@ import matplotlib as mpl
 mpl.rcParams['figure.dpi'] = 100
 
 st.set_page_config(
-    page_title="PERISAI - Dashboard Analisis PTM",
+    page_title="PERISAI",
     page_icon="🏥",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ─── A/B Testing Setup ─────────────────────────────────────────────
+# A/B Testing
 ab_group = st.query_params.get("variant", None)
 if ab_group not in ("A", "B"):
     ab_group = random.choice(["A", "B"])
@@ -38,7 +38,6 @@ def log_event(event, data=None):
         "time": pd.Timestamp.now(),
         "group": st.session_state.ab_group
     })
-# ───────────────────────────────────────────────────────────────────
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_PATH = os.path.join(BASE_DIR, '../data/ml_dataset_final_clean.csv')
@@ -71,7 +70,7 @@ df = load_data()
 
 with st.sidebar:
     st.image("Logo (1).png", width=70)
-    st.markdown("### 🏥 PERISAI")
+    st.markdown("### PERISAI")
     st.markdown("**P**rediksi & **E**dukasi **R**isiko Penyakit Tidak **M**enular")
     st.markdown("---")
     menu = st.radio(
@@ -88,12 +87,12 @@ with st.sidebar:
 
 if menu == "📊 Ringkasan":
     log_event("page_view", "Ringkasan")
-    st.title("🏥 Dashboard Analisis Penyakit Tidak Menular")
+    st.title("🏥 Dashboard Analisis Data PERISAI")
     st.markdown("Dashboard interaktif untuk menganalisis risiko **Diabetes**, **Hipertensi**, dan **Kolesterol Tinggi** berdasarkan data gaya hidup dan kesehatan.")
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Total Responden", f"{len(df):,}")
+        st.metric("Total Data", f"{len(df):,}")
     with col2:
         st.metric("Fitur Analisis", f"{len(df.columns) - 4}")
     with col3:
@@ -532,24 +531,24 @@ elif menu == "ℹ️ Tentang":
     **PERISAI** (Prediksi & Edukasi Risiko Penyakit Tidak Menular) adalah platform analisis data kesehatan yang
     menggunakan pendekatan data-driven untuk memprediksi risiko Penyakit Tidak Menular (PTM).
 
-    ### 🎯 Tujuan
+    ### Tujuan
     - Menganalisis faktor risiko Diabetes, Hipertensi, dan Kolesterol Tinggi
     - Menyediakan simulasi *what-if* untuk edukasi perubahan gaya hidup
     - Memberikan assessment risiko berbasis data
 
-    ### 📊 Sumber Data
+    ### Sumber Data
     - **BRFSS 2015** (Behavioral Risk Factor Surveillance System) - CDC
     - Dataset diabetes_binary_5050split dengan 70.692 responden
     - 22 fitur kesehatan dan gaya hidup
 
-    ### 🔬 Metodologi
+    ### Metodologi
     - **Exploratory Data Analysis**: Analisis distribusi dan korelasi
     - **Feature Engineering**: Transformasi log harian menjadi fitur model
     - **What-If Simulation**: Menggunakan bobot medis dari AHA/WHO
     - **Risk Scoring**: Model linear berdasarkan pola dataset
 
-    ### 👨‍💻 Pengembang
+    ### Pengembang
     Dashboard ini dikembangkan sebagai bagian dari proyek capstone Dicoding.
     """)
     st.markdown("---")
-    st.markdown("**Teknologi:** Python, Streamlit, Pandas, Seaborn, Matplotlib, Scikit-learn")
+    st.markdown("**Tech Stack:** Python, Streamlit, Pandas, Seaborn, Matplotlib, Scikit-learn")
