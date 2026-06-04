@@ -124,7 +124,9 @@ function AIChatPage() {
                                     : 'bg-white text-[#0F172A] border border-gray-200 rounded-bl-sm'
                                 }`}
                         >
-                            {msg.role === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : msg.text}
+                            {msg.role === 'ai'
+                                ? <ReactMarkdown className="space-y-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:leading-relaxed">{msg.text}</ReactMarkdown>
+                                : msg.text}
                         </div>
                     </div>
                 ))}
