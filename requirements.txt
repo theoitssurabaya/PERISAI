@@ -1,5 +1,5 @@
 # --- Base Data Science & Notebook ---
-numpy==2.4.4
+numpy==2.0.0
 pandas==3.0.2
 matplotlib==3.10.8
 seaborn==0.13.2
@@ -20,3 +20,6 @@ uvicorn
 pydantic
 python-dotenv
 requests
+
+# --- AI Generative ---
+google-generativeai
