@@ -73,8 +73,10 @@ function RiskProfilePage() {
         <div className="min-h-screen bg-[#E5E7EB] p-3 sm:p-6">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold text-[#0F172A]">AI Risk Profile</h1>
-                    <p className="text-[#64748B] mt-1">Analisis risiko penyakit tidak menular berdasarkan profil kesehatan Anda</p>
+                <h1 className="text-2xl sm:text-3xl font-bold text-[#0F172A]">
+                Profil Risiko Kesehatan AI </h1>
+                <p className="text-[#64748B] mt-1">
+                Analisis risiko penyakit tidak menular berdasarkan profil kesehatan dan gaya hidup Anda </p>
                 </div>
                 <button
                     onClick={fetchPrediction}
@@ -106,7 +108,7 @@ function RiskProfilePage() {
 
             {predictions && !loading && (
                 <>
-                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                         {/* Overall Risk */}
                         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
                             <h2 className="text-lg font-semibold text-[#0F172A] mb-6">Risiko Keseluruhan</h2>

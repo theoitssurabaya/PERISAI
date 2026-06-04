@@ -9,15 +9,15 @@ import { IoPersonCircleOutline } from 'react-icons/io5'
 
 const navItems = [
   { to: '/chat', label: 'AI Chat', icon: IoChatbubblesOutline },
-  { to: '/risk-profile', label: 'Risk Profile', icon: RiBarChartLine },
-  { to: '/habit-log', label: 'Habit Log', icon: MdOutlineMonitorHeart },
-  { to: '/medical-records', label: 'Medical Records', icon: IoDocumentTextOutline },
-  { to: '/profile', label: 'My Profile', icon: IoPersonCircleOutline },
+  { to: '/risk-profile', label: 'Profil Risiko', icon: RiBarChartLine },
+  { to: '/habit-log', label: 'Log Harian', icon: MdOutlineMonitorHeart },
+  { to: '/medical-records', label: 'Rekam Medis', icon: IoDocumentTextOutline },
+  { to: '/profile', label: 'Profil Saya', icon: IoPersonCircleOutline },
 ]
 
 const bottomItems = [
-  { to: '/help', label: 'Help', icon: IoHelpCircleOutline },
-  { to: '/privacy', label: 'Privacy', icon: IoShieldOutline },
+  { to: '/help', label: 'Bantuan', icon: IoHelpCircleOutline },
+  { to: '/privacy', label: 'Privasi', icon: IoShieldOutline },
 ]
 
 function Sidebar({ isOpen, onClose }) {

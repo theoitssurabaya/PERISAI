@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import {
     IoSearchOutline,
-    IoEllipsisVertical,
     IoCloseOutline,
 } from 'react-icons/io5'
 import {
@@ -298,9 +297,7 @@ function MedicalRecordsPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <button className="text-[#64748B] hover:text-[#0F172A] transition-colors">
-                                        <IoEllipsisVertical size={18} />
-                                    </button>
+
                                 </div>
 
                                 <div className="flex items-end gap-2">

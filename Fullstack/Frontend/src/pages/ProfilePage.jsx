@@ -88,7 +88,7 @@ function ProfilePage() {
         <div className={s.card}>
           <h2 className={`${s.sectionTitle} mb-4`}>Data Dasar</h2>
 
-          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Usia */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-medium text-[#3B82F6]">Usia</label>

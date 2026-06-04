@@ -9,6 +9,7 @@ import MedicalRecordsPage from './pages/MedicalRecordsPage'
 import ProfilePage from './pages/ProfilePage'
 import HelpPage from './pages/HelpPage'
 import PrivacyPage from './pages/PrivacyPage'
+import OAuthCallbackPage from './pages/OAuthCallbackPage'
 
 
 
@@ -19,6 +20,7 @@ function App() {
       {/* Auth routes - tanpa Navbar/Sidebar */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
 
       <Route path="/" element={<MainLayout />}>
         <Route index element={<Navigate to="/chat" replace />} />

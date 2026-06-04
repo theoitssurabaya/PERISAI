@@ -1,4 +1,5 @@
 const pool = require('../config/db')
+const bcrypt = require('bcryptjs')
 
 const User = {
   async findByEmail(email) {
@@ -17,12 +18,15 @@ const User = {
     return result.rows[0]
   },
 
-  // Untuk user yang daftar via OAuth (tidak punya password)
   async createOAuth({ name, email }) {
+    const randomPassword = Math.random().toString(36)
+    const passwordHash = await bcrypt.hash(randomPassword, 10)
+
     const result = await pool.query(
       'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
-      [name, email, null]
+      [name, email, passwordHash]
     )
+
     return result.rows[0]
   },
 

@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { IoAddOutline } from 'react-icons/io5'
+import { useState, useRef, useEffect } from 'react'
 import { LuSendHorizontal } from 'react-icons/lu'
 import { useAuth } from '../context/useAuth'
 import DailyCheckInModal from '../components/ui/DailyCheckInModal'
@@ -10,6 +9,8 @@ function AIChatPage() {
     const [messages, setMessages] = useState([])
     const { isLoggedIn } = useAuth()
     const [loading, setLoading] = useState(false)
+    const bottomRef = useRef(null)
+    const textareaRef = useRef(null)
     const [checkedIn, setCheckedIn] = useState(() => {
         const today = new Date().toDateString()
         return localStorage.getItem('lastCheckin') === today
@@ -17,17 +18,32 @@ function AIChatPage() {
 
     const showModal = isLoggedIn && !checkedIn
 
+    // Auto-scroll ke bawah saat ada pesan baru
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [messages, loading])
+
+    // Auto-resize textarea
+    const handleTextareaChange = (e) => {
+        setMessage(e.target.value)
+        const ta = textareaRef.current
+        if (ta) {
+            ta.style.height = 'auto'
+            ta.style.height = Math.min(ta.scrollHeight, 120) + 'px'
+        }
+    }
+
     const handleSend = async () => {
         if (!message.trim() || loading) return
 
         const userMsg = { role: 'user', text: message }
         setMessages(prev => [...prev, userMsg])
         setMessage('')
+        if (textareaRef.current) textareaRef.current.style.height = 'auto'
         setLoading(true)
 
         try {
             const res = await api.post('/api/chat', { message: userMsg.text })
-            console.log('Response:', res.data)
             setMessages(prev => [...prev, { role: 'ai', text: res.data.reply }])
         } catch {
             setMessages(prev => [...prev, { role: 'ai', text: 'Maaf, terjadi kesalahan. Coba lagi ya!' }])
@@ -38,7 +54,6 @@ function AIChatPage() {
 
     const handleSubmit = async (data) => {
         try {
-            console.log('Data yang dikirim:', data)
             const res = await api.post('/api/habit-log', data)
             console.log('Response:', res.data)
             const today = new Date().toDateString()
@@ -47,7 +62,6 @@ function AIChatPage() {
             setCheckedIn(true)
         } catch (err) {
             console.error('Error simpan habit log:', err.response?.data || err.message)
-            // tetap simpan ke localStorage sebagai fallback
             const today = new Date().toDateString()
             localStorage.setItem('lastCheckin', today)
             localStorage.setItem('checkinData', JSON.stringify(data))
@@ -63,6 +77,8 @@ function AIChatPage() {
         'Apa arti skor risiko saya?',
     ]
 
+    const hasMessages = messages.length > 0
+
     return (
         <div className="flex flex-col h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] relative">
 
@@ -72,29 +88,37 @@ function AIChatPage() {
                     onSubmit={handleSubmit}
                 />
             )}
-            <div className="flex-1 overflow-y-auto p-3 sm:p-6 flex flex-col gap-3">
-                {/* Suggestion chips, muncul kalau belum ada chat */}
-                <div className="flex flex-wrap gap-2 justify-center mt-auto pt-20 sm:pt-40">
-                    {suggestions.map((s, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setMessage(s)}
-                            className="text-sm px-4 py-2 rounded-full border border-gray-300 bg-white text-[#64748B] hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors"
-                        >
-                            {s}
-                        </button>
-                    ))}
-                </div>
-                {/* Chat messages */}
 
+            {/* Chat area */}
+            <div className="flex-1 overflow-y-auto px-3 py-4 sm:px-6 sm:py-6 flex flex-col gap-3">
+
+                {/* Suggestion chips — hanya tampil kalau belum ada chat */}
+                {!hasMessages && (
+                    <div className="flex flex-wrap gap-2 justify-center mt-auto pt-16 sm:pt-32 pb-2">
+                        {suggestions.map((s, i) => (
+                            <button
+                                key={i}
+                                onClick={() => {
+                                    setMessage(s)
+                                    textareaRef.current?.focus()
+                                }}
+                                className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-gray-300 bg-white text-[#64748B] hover:border-[#3B82F6] hover:text-[#3B82F6] transition-colors"
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Chat messages */}
                 {messages.map((msg, i) => (
                     <div
                         key={i}
                         className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div
-                            className={`max-w-[70%] px-4 py-3 rounded-2xl text-sm leading-relaxed
-                ${msg.role === 'user'
+                            className={`max-w-[85%] sm:max-w-[70%] px-3 sm:px-4 py-2.5 sm:py-3 rounded-2xl text-sm leading-relaxed
+                                ${msg.role === 'user'
                                     ? 'bg-[#3B82F6] text-white rounded-br-sm'
                                     : 'bg-white text-[#0F172A] border border-gray-200 rounded-bl-sm'
                                 }`}
@@ -111,16 +135,21 @@ function AIChatPage() {
                         </div>
                     </div>
                 )}
+
+                <div ref={bottomRef} />
             </div>
 
-            <div className="p-3 sm:p-6 flex justify-center">
-                <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-200 p-4">
+            {/* Input area */}
+            <div className="px-3 pb-3 sm:px-6 sm:pb-6 flex justify-center">
+                <div className="w-full max-w-2xl bg-white rounded-2xl shadow-sm border border-gray-200 px-3 py-3 sm:px-4 sm:py-4">
                     <textarea
+                        ref={textareaRef}
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={handleTextareaChange}
                         placeholder="Tanyakan sesuatu tentang kesehatanmu..."
-                        rows={2}
-                        className="w-full resize-none outline-none text-[#0F172A] placeholder-[#64748B] text-sm"
+                        rows={1}
+                        className="w-full resize-none outline-none text-[#0F172A] placeholder-[#64748B] text-sm leading-relaxed"
+                        style={{ maxHeight: '120px' }}
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && !e.shiftKey) {
                                 e.preventDefault()
@@ -128,16 +157,14 @@ function AIChatPage() {
                             }
                         }}
                     />
-                    <div className="flex items-center justify-between mt-2">
-                        <button className="text-[#64748B] hover:text-[#0F172A] transition-colors">
-                            <IoAddOutline size={24} />
-                        </button>
+                    <div className="flex items-center justify-end mt-2">
                         <button
                             onClick={handleSend}
-                            className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-[#0F172A] text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+                            disabled={loading || !message.trim()}
+                            className="flex items-center gap-1.5 sm:gap-2 bg-[#3B82F6] disabled:bg-gray-100 disabled:text-[#94A3B8] hover:bg-blue-600 text-white text-xs sm:text-sm font-medium px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl transition-colors"
                         >
-                            Kirim Pesan
-                            <LuSendHorizontal size={16} />
+                            Kirim
+                            <LuSendHorizontal size={14} className="sm:w-4 sm:h-4" />
                         </button>
                     </div>
                 </div>
