@@ -36,6 +36,14 @@ const User = {
       [id]
     )
     return result.rows[0]
+  },
+
+  async updatePassword(id, newPasswordHash) {
+    const result = await pool.query(
+      'UPDATE users SET password_hash = $1 WHERE id = $2 RETURNING id, name, email',
+      [newPasswordHash, id]
+    )
+    return result.rows[0]
   }
 }
 

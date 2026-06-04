@@ -44,37 +44,13 @@ function LoginPage() {
     }
   }
 
-  const handleForgotPassword = async () => {
+  const handleForgotPassword = () => {
     if (!email) {
-      alert('Silakan isi kolom Email Address terlebih dahulu.')
+      alert('Silakan isi kolom Email Id terlebih dahulu sebelum memperbarui password.')
       return
     }
-
-    const yakin = window.confirm(`Kirim tautan reset password ke email: ${email}?`)
-    if (!yakin) return
-
-    setLoading(true)
-    try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000'
-
-      const response = await fetch(`${apiBase}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Gagal mengirim permintaan reset password')
-      }
-
-      alert(data.message || 'Tautan pemulihan berhasil dikirim!')
-    } catch (err) {
-      alert(err.message || 'Terjadi kesalahan sistem')
-    } finally {
-      setLoading(false)
-    }
+    // Redirect ke halaman reset password sambil membawa data email
+    navigate('/reset-password', { state: { email } })
   }
 
 

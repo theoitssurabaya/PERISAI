@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { register, login, me, forgotPassword } = require('../controllers/authController')
+const { register, login, me, resetPassword } = require('../controllers/authController')
 const {
   googleRedirect, googleCallback,
   // facebookRedirect, facebookCallback,
@@ -13,6 +13,7 @@ router.post('/register', register)
 router.post('/login', login)
 router.get('/me', authMiddleware, me)
 router.post('/forgot-password', forgotPassword)
+router.post('/reset-password', resetPassword)
 // Google OAuth
 router.get('/google', googleRedirect)
 router.get('/google/callback', googleCallback)

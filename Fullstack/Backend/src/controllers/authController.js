@@ -84,4 +84,24 @@ const forgotPassword = async (req, res, next) => {
   }
 }
 
-module.exports = { register, login, me, forgotPassword }
+const resetPassword = async (req, res, next) => {
+  try {
+    const { email, newPassword } = req.body
+
+    if (!email || !newPassword)
+      return res.status(400).json({ success: false, message: 'Email dan password baru harus diisi' })
+    const user = await User.findByEmail(email)
+    if (!user)
+      return res.status(404).json({ success: false, message: 'Email tidak ditemukan' })
+    const salt = await bcrypt.genSalt(10)
+    const newPasswordHash = await bcrypt.hash(newPassword, salt)
+    await User.updatePassword(user.id, newPasswordHash)
+    res.json({
+      success: true,
+      message: 'Password berhasil diperbarui! Silakan kembali ke halaman login.'
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+module.exports = { register, login, me, forgotPassword, resetPassword }
