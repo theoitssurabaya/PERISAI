@@ -28,7 +28,7 @@ const features = [
   {
     icon: IoDocumentTextOutline,
     title: 'Rekam Medis',
-    desc: 'Simpan diagnosis, resep, dan hasil lab di satu tempat yang aman dan terenkripsi.',
+    desc: 'Catat dan pantau indikator kesehatan PTM kamu tekanan darah, kolesterol, gula darah, dan BMI lengkap dengan riwayat.',
     accent: 'bg-purple-50 text-purple-500',
     border: 'border-purple-100',
   },
