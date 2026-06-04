@@ -3,6 +3,7 @@ import { LuSendHorizontal } from 'react-icons/lu'
 import { useAuth } from '../context/useAuth'
 import DailyCheckInModal from '../components/ui/DailyCheckInModal'
 import api from '../services/api'
+import ReactMarkdown from 'react-markdown'
 
 function AIChatPage() {
     const [message, setMessage] = useState('')
@@ -123,7 +124,7 @@ function AIChatPage() {
                                     : 'bg-white text-[#0F172A] border border-gray-200 rounded-bl-sm'
                                 }`}
                         >
-                            {msg.text}
+                            {msg.role === 'ai' ? <ReactMarkdown>{msg.text}</ReactMarkdown> : msg.text}
                         </div>
                     </div>
                 ))}
