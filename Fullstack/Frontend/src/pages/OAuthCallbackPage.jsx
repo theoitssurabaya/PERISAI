@@ -10,7 +10,7 @@ function OAuthCallbackPage() {
 
     if (token) {
       localStorage.setItem('token', token)
-      navigate('/profile')
+      navigate('/chat')
     } else {
       navigate('/login')
     }
