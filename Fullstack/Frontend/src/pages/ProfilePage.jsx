@@ -79,7 +79,10 @@ function ProfilePage() {
       <h1 className={s.pageTitle}>Profil Kesehatan</h1>
       <p className={s.pageSubtitle}>Lengkapi data ini untuk mendapatkan prediksi risiko yang akurat.</p>
 
-      <form onSubmit={handleSubmit} className="mt-6 max-w-2xl flex flex-col gap-4">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 w-full max-w-7xl mx-auto flex flex-col gap-6"
+      >
 
         {error && <div className="bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">{error}</div>}
         {success && <div className="bg-green-50 border border-green-200 text-green-600 text-sm px-4 py-3 rounded-xl">{success}</div>}
