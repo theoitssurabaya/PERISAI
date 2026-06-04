@@ -56,47 +56,47 @@ const googleCallback = async (req, res, next) => {
 }
 
 // ── FACEBOOK ──
-const facebookRedirect = (req, res) => {
-  const params = new URLSearchParams({
-    client_id: process.env.FACEBOOK_APP_ID,
-    redirect_uri: process.env.FACEBOOK_CALLBACK_URL,
-    scope: 'email,public_profile',
-    response_type: 'code',
-  })
-  res.redirect(`https://www.facebook.com/v18.0/dialog/oauth?${params}`)
-}
+// const facebookRedirect = (req, res) => {
+//   const params = new URLSearchParams({
+//     client_id: process.env.FACEBOOK_APP_ID,
+//     redirect_uri: process.env.FACEBOOK_CALLBACK_URL,
+//     scope: 'email,public_profile',
+//     response_type: 'code',
+//   })
+//   res.redirect(`https://www.facebook.com/v18.0/dialog/oauth?${params}`)
+// }
 
-const facebookCallback = async (req, res, next) => {
-  try {
-    const { code } = req.query
-    if (!code) return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
+// const facebookCallback = async (req, res, next) => {
+//   try {
+//     const { code } = req.query
+//     if (!code) return res.redirect(`${process.env.FRONTEND_URL}/login?error=oauth_failed`)
 
-    const tokenRes = await axios.get('https://graph.facebook.com/v18.0/oauth/access_token', {
-      params: {
-        client_id: process.env.FACEBOOK_APP_ID,
-        client_secret: process.env.FACEBOOK_APP_SECRET,
-        redirect_uri: process.env.FACEBOOK_CALLBACK_URL,
-        code,
-      }
-    })
+//     const tokenRes = await axios.get('https://graph.facebook.com/v18.0/oauth/access_token', {
+//       params: {
+//         client_id: process.env.FACEBOOK_APP_ID,
+//         client_secret: process.env.FACEBOOK_APP_SECRET,
+//         redirect_uri: process.env.FACEBOOK_CALLBACK_URL,
+//         code,
+//       }
+//     })
 
-    const { access_token } = tokenRes.data
+//     const { access_token } = tokenRes.data
 
-    const userRes = await axios.get('https://graph.facebook.com/me', {
-      params: { fields: 'id,name,email', access_token }
-    })
+//     const userRes = await axios.get('https://graph.facebook.com/me', {
+//       params: { fields: 'id,name,email', access_token }
+//     })
 
-    const { name, email } = userRes.data
-    if (!email) return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_email`)
+//     const { name, email } = userRes.data
+//     if (!email) return res.redirect(`${process.env.FRONTEND_URL}/login?error=no_email`)
 
-    const user = await findOrCreateUser({ name, email })
-    const token = generateToken(user.id)
+//     const user = await findOrCreateUser({ name, email })
+//     const token = generateToken(user.id)
 
-    res.redirect(`${process.env.FRONTEND_URL}/oauth-callback?token=${token}`)
-  } catch (err) {
-    next(err)
-  }
-}
+//     res.redirect(`${process.env.FRONTEND_URL}/oauth-callback?token=${token}`)
+//   } catch (err) {
+//     next(err)
+//   }
+// }
 
 // ── APPLE (coming soon - butuh Apple Developer Account $99/tahun) ──
 // const appleRedirect = (req, res) => {
@@ -134,6 +134,6 @@ const facebookCallback = async (req, res, next) => {
 
 module.exports = {
   googleRedirect, googleCallback,
-  facebookRedirect, facebookCallback,
+  // facebookRedirect, facebookCallback,
   // appleRedirect, appleCallback,
 }

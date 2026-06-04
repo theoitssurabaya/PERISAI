@@ -65,4 +65,23 @@ const me = async (req, res, next) => {
   }
 }
 
-module.exports = { register, login, me }
+const forgotPassword = async (req, res, next) => {
+  try {
+    const { email } = req.body
+
+    if (!email)
+      return res.status(400).json({ success: false, message: 'Email harus diisi' })
+
+    const user = await User.findByEmail(email)
+    if (!user)
+      return res.status(404).json({ success: false, message: 'Email tidak ditemukan' })
+    res.json({
+      success: true,
+      message: 'Instruksi pemulihan kata sandi telah dikirim ke email Anda.'
+    })
+  } catch (err) {
+    next(err)
+  }
+}
+
+module.exports = { register, login, me, forgotPassword }

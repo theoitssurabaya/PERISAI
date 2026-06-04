@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { MdOutlineEmail, MdLockOutline } from 'react-icons/md'
 import { FcGoogle } from 'react-icons/fc'
-import { FaFacebook/*, FaApple*/ } from 'react-icons/fa'
+// import { FaFacebook/*, FaApple*/ } from 'react-icons/fa'
 import { IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
 import logoIcon from '../assets/Perisai.png'
 import { useAuth } from '../context/useAuth'
@@ -38,10 +38,45 @@ function LoginPage() {
       const apiBase = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/$/, "");
       window.location.href = `${apiBase}/api/auth/${provider}`;
     } catch (err) {
+      console.error(err)
       alert(`Login dengan ${provider} gagal. Coba lagi.`)
       setOauthLoading(null)
     }
   }
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      alert('Silakan isi kolom Email Address terlebih dahulu.')
+      return
+    }
+
+    const yakin = window.confirm(`Kirim tautan reset password ke email: ${email}?`)
+    if (!yakin) return
+
+    setLoading(true)
+    try {
+      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+
+      const response = await fetch(`${apiBase}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Gagal mengirim permintaan reset password')
+      }
+
+      alert(data.message || 'Tautan pemulihan berhasil dikirim!')
+    } catch (err) {
+      alert(err.message || 'Terjadi kesalahan sistem')
+    } finally {
+      setLoading(false)
+    }
+  }
+
 
   return (
     <div className="min-h-screen bg-[#E5E7EB] flex items-center justify-center px-4">
@@ -92,7 +127,12 @@ function LoginPage() {
               </button>
             </div>
             <div className="flex justify-end">
-              <button type="button" className="text-xs text-[#64748B] hover:text-[#3B82F6] transition-colors">
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                disabled={loading}
+                className="text-xs text-[#64748B] hover:text-[#3B82F6] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
                 Forgot your password?
               </button>
             </div>
@@ -113,7 +153,7 @@ function LoginPage() {
           <div className="flex-1 h-px bg-gray-200" />
         </div>
 
-        {/* Social Login Buttons */}
+        {/* Social Login Buttons */ }
         <div className="flex flex-col gap-3 mb-6">
           <button
             onClick={() => handleOAuthLogin('google')}
@@ -128,7 +168,7 @@ function LoginPage() {
             <span className="text-sm font-medium text-[#0F172A]">Continue with Google</span>
           </button>
 
-          <button
+          {/* <button
             onClick={() => handleOAuthLogin('facebook')}
             disabled={oauthLoading !== null}
             className="flex items-center justify-center gap-3 w-full border border-gray-200 rounded-xl py-3 px-4 hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
@@ -139,7 +179,7 @@ function LoginPage() {
               <FaFacebook size={20} className="text-[#1877F2]" />
             )}
             <span className="text-sm font-medium text-[#0F172A]">Continue with Facebook</span>
-          </button>
+          </button> */}
 
           {/* Apple Login - coming soon (butuh Apple Developer Account $99/tahun)
           <button
@@ -164,8 +204,8 @@ function LoginPage() {
           </Link>
         </p>
 
-      </div>
-    </div>
+      </div >
+    </div >
   )
 }
 

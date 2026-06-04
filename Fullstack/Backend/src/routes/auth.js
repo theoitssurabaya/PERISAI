@@ -1,9 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const { register, login, me } = require('../controllers/authController')
+const { register, login, me, forgotPassword } = require('../controllers/authController')
 const {
   googleRedirect, googleCallback,
-  facebookRedirect, facebookCallback,
+  // facebookRedirect, facebookCallback,
   // appleRedirect, appleCallback,
 } = require('../controllers/oauthController')
 const authMiddleware = require('../middleware/auth')
@@ -12,14 +12,14 @@ const authMiddleware = require('../middleware/auth')
 router.post('/register', register)
 router.post('/login', login)
 router.get('/me', authMiddleware, me)
-
+router.post('/forgot-password', forgotPassword)
 // Google OAuth
 router.get('/google', googleRedirect)
 router.get('/google/callback', googleCallback)
 
 // Facebook OAuth
-router.get('/facebook', facebookRedirect)
-router.get('/facebook/callback', facebookCallback)
+// router.get('/facebook', facebookRedirect)
+// router.get('/facebook/callback', facebookCallback)
 
 // Apple OAuth - coming soon (butuh Apple Developer Account $99/tahun)
 // router.get('/apple', appleRedirect)
