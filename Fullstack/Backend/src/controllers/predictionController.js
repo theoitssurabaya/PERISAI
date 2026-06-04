@@ -12,11 +12,34 @@ const predict = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Lengkapi profil kesehatan kamu dulu!' })
     }
 
-    const today = new Date().toISOString().split('T')[0]
-    const habitLog = await HabitLog.findByDate(req.userId, today)
-    if (!habitLog) {
+    // Ambil histori 7 hari terakhir
+    const habitLogs = await HabitLog.findHistory(req.userId, 7)
+    if (!habitLogs || habitLogs.length === 0) {
       return res.status(400).json({ success: false, message: 'Isi data harian kamu dulu!' })
     }
+
+    let totalSmokes = 0
+    let totalExercised = 0
+    let totalAlcohol = 0
+    let totalSleepHours = 0
+
+    habitLogs.forEach(log => {
+      if (log.smokes) totalSmokes++
+      if (log.exercised) totalExercised++
+      if (log.alcohol) totalAlcohol++
+      totalSleepHours += Number(log.sleep_hours) || 0
+    })
+
+    const totalLogs = habitLogs.length
+    
+    // Threshold dari User: Minimal 3 kali untuk dinyatakan Positif (1) dalam 7 hari.
+    // Skalasi dinamis jika pengguna baru mendaftar (data < 7 hari).
+    const threshold = totalLogs >= 7 ? 3 : Math.ceil(totalLogs * (3/7))
+    
+    const isSmoker = totalSmokes >= threshold ? 1 : 0
+    const isPhysActive = totalExercised >= threshold ? 1 : 0
+    const isHeavyDrinker = totalAlcohol >= threshold ? 1 : 0
+    const avgSleepHours = Math.round(totalSleepHours / totalLogs)
 
     // Konversi usia ke age group
     const getAgeGroup = (age) => {
@@ -39,17 +62,17 @@ const predict = async (req, res, next) => {
       Age: getAgeGroup(profile.age),
       Sex: profile.sex,
       BMI: parseFloat(profile.bmi),
-      Smoker: habitLog.smokes ? 1 : 0,
-      PhysActivity: habitLog.exercised ? 1 : 0,
+      Smoker: isSmoker,
+      PhysActivity: isPhysActive,
       Fruits: profile.fruits,
       Veggies: profile.veggies,
-      HvyAlcoholConsump: habitLog.alcohol ? 1 : 0,
+      HvyAlcoholConsump: isHeavyDrinker,
       DiffWalk: profile.diff_walk,
       Stroke: profile.stroke,
       HeartDiseaseorAttack: profile.heart_disease,
       CholCheck: profile.chol_check,
       GenHlth: profile.gen_hlth,
-      SleepHours: habitLog.sleep_hours
+      SleepHours: avgSleepHours
     }
 
     const mlResponse = await axios.post(`${ML_SERVICE_URL}/predict`, payload)

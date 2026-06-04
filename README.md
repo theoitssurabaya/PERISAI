@@ -10,37 +10,45 @@ pinned: false
 
 PERISAI adalah sebuah sistem *Fullstack Web Application* berbasis *Artificial Intelligence* (AI) yang dirancang untuk menganalisis gaya hidup dan rekam medis pasien guna memprediksi risiko 3 Penyakit Tidak Menular (PTM) utama: **Diabetes, Hipertensi (HighBP), dan Kolesterol Tinggi (HighChol)**.
 
-Sistem ini digerakkan oleh model *Deep Learning* kustom (TensorFlow/Keras) yang dilatih menggunakan arsitektur *Functional API*, *Custom Layers*, dan *Custom Loss Function* (BCE + 10x MAE) untuk menghasilkan tingkat probabilitas yang sangat presisi berdasarkan data nyata (BRFSS Dataset).
+Sistem ini digerakkan oleh model *Deep Learning* kustom (TensorFlow/Keras) yang dilatih menggunakan arsitektur *Functional API*, *Custom Layers*, dan *Custom Loss Function* (BCE + 10x MAE) untuk menghasilkan tingkat probabilitas yang sangat presisi berdasarkan data nyata (BRFSS Dataset). Dilengkapi dengan asisten *Generative AI* untuk konsultasi medis interaktif.
 
 ---
 
-## 🏗️ Arsitektur Proyek
-Proyek ini mengadopsi arsitektur *Microservices* modern yang terbagi menjadi beberapa komponen utama:
+## 🏗️ Arsitektur Proyek & Deployment
 
-1. **AI / Data Science (`/ai_engineer` & `/data`)**
-    - Tempat riset data, analisis *Bayes Error*, pembersihan dataset, hingga pelatihan model AI (berbasis *Jupyter Notebook*).
-    - Menghasilkan file *production* Keras: `perisai_model_production.keras`.
+Proyek ini telah berstatus *Production-Ready* dan di-*deploy* menggunakan arsitektur *Microservices* modern yang terdistribusi secara terdesentralisasi di tiga platform *Cloud* berbeda untuk menjamin skalabilitas dan isolasi beban kerja (*workload*).
 
-2. **Frontend UI (`/Fullstack/Frontend`)**
-    - Dibangun dengan **React, Vite, dan TailwindCSS**.
-    - Menyediakan antarmuka visual (Dashboard, Formulir Prediksi 14 Parameter AI, Jurnal Kebiasaan Harian, dll).
+### 1. Frontend UI (Vercel)
+- **Tech Stack**: React, Vite, dan TailwindCSS.
+- **Peran**: Menyediakan antarmuka visual (Dashboard, Formulir Prediksi AI, Jurnal Kebiasaan Harian, Chatbot Interaktif).
+- **Live URL**: [https://perisai-ptm.vercel.app/](https://perisai-ptm.vercel.app/)
 
-3. **Backend API (`/Fullstack/Backend`)**
-    - Dibangun dengan **Node.js, Express, dan PostgreSQL**.
-    - Mengurus manajemen *User* (Autentikasi JWT), penyimpanan *Habit Log*, dan bertindak sebagai jembatan *API Gateway* ke *Microservice* AI.
+### 2. Backend API (Railway)
+- **Tech Stack**: Node.js, Express, dan PostgreSQL.
+- **Peran**: Mengurus manajemen *User* (Autentikasi JWT), penyimpanan *Habit Log*, dan bertindak sebagai *API Gateway* yang menjembatani Frontend dengan AI Microservice. Secara otonom menghitung *Historical Moving Average* (Rata-rata 7 Hari terakhir) sebelum mengirimkan data ke AI.
+- **Live URL**: `https://perisai.up.railway.app`
 
-4. **AI Microservice (`/Fullstack/ML_Service`)**
-    - Dibangun dengan **Python dan Flask**.
-    - Bertugas secara eksklusif untuk memuat model `.keras` beserta *Custom Objects*-nya, melakukan kalkulasi penskalaan *StandardScaler*, dan memberikan respons prediksi inferensi secara *real-time*.
+### 3. AI Microservice (Hugging Face Spaces)
+- **Tech Stack**: Python, FastAPI, TensorFlow, Google Gemini API, Docker.
+- **Peran**: Server berkinerja tinggi yang dikhususkan secara eksklusif untuk menjalankan inferensi model *Deep Learning* (`perisai_model_production.keras`) dan memproses respons *Generative AI* secara *real-time*. Diisolasi menggunakan Docker *Container*.
+- **Live URL**: [https://huggingface.co/spaces/hilmyinaja/perisai-ai-api](https://huggingface.co/spaces/hilmyinaja/perisai-ai-api)
 
 ---
 
-## 🚀 Cara Menjalankan Proyek (How to Run)
+## 📂 Struktur Repositori Terpadu (Monorepo)
+- `/ai_engineer`: Jantung Ilmu Data. Berisi *Jupyter Notebook* untuk pelatihan model, visualisasi *Class Imbalance*, *logs* TensorBoard, dan *source code* API FastAPI.
+- `/Fullstack/Frontend`: Kode sumber untuk antarmuka pengguna web.
+- `/Fullstack/Backend`: Kode sumber untuk logika server Node.js dan manajemen *database*.
+- `/data`: Tempat penyimpanan dataset mentah dan bersih (*BRFSS CDC*).
 
-Anda perlu menjalankan ketiga servis (AI, Backend, dan Frontend) secara bersamaan di terminal yang berbeda.
+---
+
+## 🚀 Cara Menjalankan Proyek (Local Development)
+
+Anda perlu menjalankan ketiga servis secara bersamaan di terminal yang berbeda jika ingin menjalankan aplikasi ini secara lokal.
 
 ### Prasyarat:
-- Python 3.12+
+- Python 3.10+
 - Node.js 18+
 - PostgreSQL Server
 
@@ -49,7 +57,7 @@ Anda perlu menjalankan ketiga servis (AI, Backend, dan Frontend) secara bersamaa
     ```bash
     cd Fullstack/Backend
     ```
-2. Instal *library* yang dibutuhkan:
+2. Instal pustaka yang dibutuhkan:
     ```bash
     npm install
     ```
@@ -58,7 +66,9 @@ Anda perlu menjalankan ketiga servis (AI, Backend, dan Frontend) secara bersamaa
     DATABASE_URL=postgres://postgres:password_anda@localhost:5432/perisai_db
     PORT=5000
     JWT_SECRET=rahasia_super_aman_123
-    AI_SERVICE_URL=http://127.0.0.1:5001
+    ML_SERVICE_URL=http://127.0.0.1:8001/api/v1
+    AI_SERVICE_URL=http://127.0.0.1:8001/api/v1
+    AI_CHAT_URL=http://127.0.0.1:8001
     ```
 4. Lakukan *Migrate* tabel ke *database*:
     ```bash
@@ -69,10 +79,9 @@ Anda perlu menjalankan ketiga servis (AI, Backend, dan Frontend) secara bersamaa
     npm run dev
     ```
 
-### Langkah 2: Menyiapkan Virtual Environment & Dependencies Python
-Sebelum menjalankan server ML (Flask) dan Chatbot (FastAPI), Anda harus menginstal seluruh kebutuhan pustaka Python dari akar proyek:
-1. Buka terminal di **root folder** proyek.
-2. Buat dan aktifkan virtual environment (Opsional tapi disarankan):
+### Langkah 2: Menyiapkan Lingkungan Python
+1. Buka terminal di **akar (root) folder** proyek.
+2. Buat dan aktifkan *virtual environment*:
     ```bash
     python3 -m venv venv
     source venv/bin/activate
@@ -82,18 +91,18 @@ Sebelum menjalankan server ML (Flask) dan Chatbot (FastAPI), Anda harus menginst
     pip install -r requirements.txt
     ```
 
-### Langkah 3: Menjalankan AI Microservice Terpadu (FastAPI - Prediksi PTM & Generative AI)
+### Langkah 3: Menjalankan AI Microservice (FastAPI)
 1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori AI API:
     ```bash
     cd ai_engineer/perisai_api
     ```
 2. Buat file `.env` di folder tersebut dan isi dengan Google API Key Anda:
     ```env
-    GOOGLE_API_KEY=KUNCI_RAHASIA_ANDA
+    GEMINI_API_KEY=KUNCI_RAHASIA_ANDA
     ```
-3. Jalankan server *FastAPI* (yang kini juga menangani prediksi Model):
+3. Jalankan server *FastAPI*:
     ```bash
-    uvicorn perisai_api:app --port 8001
+    uvicorn perisai_api:app --port 8001 --reload
     ```
 
 ### Langkah 4: Menjalankan Frontend (React UI)
@@ -105,33 +114,15 @@ Sebelum menjalankan server ML (Flask) dan Chatbot (FastAPI), Anda harus menginst
     ```bash
     npm install
     ```
-3. Buat file `.env` (jika belum ada) berisi alamat Backend Node.js:
+3. Buat file `.env` berisi alamat Backend Node.js:
     ```env
-    VITE_API_URL=http://localhost:5000
+    VITE_API_URL=http://localhost:5000/api
     ```
 4. Nyalakan antarmuka web:
     ```bash
     npm run dev
     ```
-5. **Selesai!** Buka tautan lokal yang muncul (biasanya `http://localhost:5173`) di *browser* Anda untuk menggunakan PERISAI.
+5. Buka tautan lokal yang muncul (biasanya `http://localhost:5173`) di *browser* Anda.
 
 ---
-
-## 🎯 Pencapaian Kriteria Evaluasi (Checklist)
-Proyek ini secara ketat dirancang untuk memenuhi kriteria evaluasi model *Deep Learning* tingkat lanjut:
-
-- [x] **1. TensorFlow Functional API / Subclassing**: Model dibangun menggunakan TensorFlow Keras `Functional API` dengan banyak *dense layer* bercabang (lihat `ai_engineer/1_model_training_and_evaluation.ipynb`).
-- [x] **2. Komponen Kustom (Custom Objects)**: Mengimplementasikan **tiga** komponen kustom sekaligus:
-    - **Custom Layer**: `AdvancedDenseLayer` dengan inisialisasi bobot *He-Normal*.
-    - **Custom Loss Function**: Kombinasi hibrida asimetris `BCE + (10 * MAE)`.
-    - **Custom Callback**: Callback dinamis terintegrasi di dalam proses iterasi.
-- [x] **3. Ekspor Model Siap Produksi**: Model diekspor ke dalam format asli `.keras` (`perisai_model_production.keras`) dan diekstrak bobotnya (`.weights.h5`).
-- [x] **4. Kode Inference Mandiri**: Skrip pemuatan (*load*) model dan inferensi data real-time langsung dibangun ke dalam arsitektur REST (lihat `app.py`).
-- [x] **5. REST API Mandiri (FastAPI)**: Keseluruhan fusi prediksi klasifikasi *Machine Learning* dan asisten Chatbot *Generative AI* disatukan ke dalam satu Microservice AI **FastAPI** (`ai_engineer/perisai_api/perisai_api.py` di Port 8001).
-- [x] **6. Custom Training Loop (tf.GradientTape)**: Proses *training* **tidak menggunakan `model.fit()`**, melainkan murni ditulis dari nol secara matematis menggunakan *GradientTape*, pengumpulan *Loss*, perhitungan *Gradients*, hingga pembaruan ke *Optimizer*.
-- [x] **7. API Generative AI**: Terintegrasi secara *seamless* dengan **Google Gemini 2.0 Flash API** sebagai asisten Dokter AI dan pemberi nasihat medis dinamis.
-- [x] **8. TensorBoard Logs**: Pengumpulan metrik *epoch*, akurasi, dan error telah dicatat *(logged)* selama proses Custom Training Loop menggunakan `tf.summary` dan disertakan di dalam *repository* (folder `ai_engineer/logs`).
-- [x] **9. Performa Tinggi & Dokumentasi**: Melalui eksperimen tuning berlapis, model menunjukkan ROC-AUC dan presisi yang sangat kuat pada dataset imbalans BRFSS.
-
----
-*Proyek ini merupakan demonstrasi dari fusi Ilmu Data, Teknik Machine Learning, dan Rekayasa Perangkat Lunak Web Modern.*
+*Proyek ini merupakan demonstrasi level industri dari perpaduan Ilmu Data (Data Science), Rekayasa Machine Learning (ML Engineering), dan Rekayasa Perangkat Lunak Web Modern (Fullstack Development).*
