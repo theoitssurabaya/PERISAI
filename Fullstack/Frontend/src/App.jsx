@@ -4,6 +4,7 @@ import AIChatPage from './pages/AIChatPage'
 import HabitLogPage from './pages/HabitLogPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 import RiskProfilePage from './pages/RiskProfilePage'
 import MedicalRecordsPage from './pages/MedicalRecordsPage'
 import ProfilePage from './pages/ProfilePage'
@@ -20,6 +21,7 @@ function App() {
       {/* Auth routes - tanpa Navbar/Sidebar */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/oauth-callback" element={<OAuthCallbackPage />} />
 
       <Route path="/" element={<MainLayout />}>
