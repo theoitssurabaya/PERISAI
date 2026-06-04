@@ -27,7 +27,7 @@ function ResetPasswordPage() {
 
     setLoading(true)
     try {
-      const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+      const apiBase = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL : 'http://localhost:5000'
       const response = await fetch(`${apiBase}/api/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
