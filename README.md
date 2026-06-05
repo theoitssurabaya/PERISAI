@@ -52,6 +52,13 @@ Anda perlu menjalankan ketiga servis secara bersamaan di terminal yang berbeda j
 - Node.js 18+
 - PostgreSQL Server
 
+### Langkah 0: Kloning Repositori
+Buka terminal dan unduh kode sumber dari GitHub:
+    ```bash
+    git clone https://github.com/hilmyinaja/Data-Analysis-Penyakit-Tidak-Menular.git
+    cd Data-Analysis-Penyakit-Tidak-Menular
+    ```
+
 ### Langkah 1: Persiapan Database & Backend (Node.js)
 1. Buka terminal dan masuk ke direktori Backend:
     ```bash
