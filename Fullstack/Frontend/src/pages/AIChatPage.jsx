@@ -55,7 +55,14 @@ function AIChatPage() {
 
     const handleSubmit = async (data) => {
         try {
-            const res = await api.post('/api/habit-log', data)
+            // Memaksa penggunaan format YYYY-MM-DD waktu lokal (bukan UTC server)
+            const offset = new Date().getTimezoneOffset()
+            const localDate = new Date(new Date().getTime() - (offset * 60 * 1000))
+            const dateStr = localDate.toISOString().split('T')[0]
+            
+            const payload = { ...data, date: dateStr }
+
+            const res = await api.post('/api/habit-log', payload)
             console.log('Response:', res.data)
             const today = new Date().toDateString()
             localStorage.setItem('lastCheckin', today)
