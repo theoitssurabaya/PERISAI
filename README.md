@@ -1,127 +1,127 @@
- # PERISAI (Prediksi Risiko Penyakit Tidak Menular)
+ # PERISAI (Non-Communicable Disease Risk Prediction)
 
-PERISAI adalah sebuah sistem *Fullstack Web Application* berbasis *Artificial Intelligence* (AI) yang dirancang untuk menganalisis gaya hidup dan rekam medis pasien guna memprediksi risiko 3 Penyakit Tidak Menular (PTM) utama: **Diabetes, Hipertensi (HighBP), dan Kolesterol Tinggi (HighChol)**.
+PERISAI is a Fullstack Web Application system based on Artificial Intelligence (AI) designed to analyze lifestyle and patient medical records to predict the risk of 3 major Non-Communicable Diseases (NCDs): **Diabetes, Hypertension (HighBP), and High Cholesterol (HighChol)**.
 
-Sistem ini digerakkan oleh model *Deep Learning* kustom (TensorFlow/Keras) yang dilatih menggunakan arsitektur *Functional API*, *Custom Layers*, dan *Custom Loss Function* (BCE + 10x MAE) untuk menghasilkan tingkat probabilitas yang sangat presisi berdasarkan data nyata (BRFSS Dataset). Dilengkapi dengan asisten *Generative AI* untuk konsultasi medis interaktif.
+This system is driven by a custom Deep Learning model (TensorFlow/Keras) trained using a Functional API architecture, Custom Layers, and a Custom Loss Function (BCE + 10x MAE) to generate highly precise probability levels based on real data (BRFSS Dataset). Equipped with a Generative AI assistant for interactive medical consultation.
 
 ---
 
-## 🏗️ Arsitektur Proyek & Deployment
+## 🏗️ Project Architecture & Deployment
 
-Proyek ini telah berstatus *Production-Ready* dan di-*deploy* menggunakan arsitektur *Microservices* modern yang terdistribusi secara terdesentralisasi di tiga platform *Cloud* berbeda untuk menjamin skalabilitas dan isolasi beban kerja (*workload*).
+This project has a Production-Ready status and is deployed using a modern Microservices architecture distributed decentrally across three different Cloud platforms to ensure scalability and workload isolation.
 
 ### 1. Frontend UI (Vercel)
-- **Tech Stack**: React, Vite, dan TailwindCSS.
-- **Peran**: Menyediakan antarmuka visual (Dashboard, Formulir Prediksi AI, Jurnal Kebiasaan Harian, Chatbot Interaktif).
+- **Tech Stack**: React, Vite, and TailwindCSS.
+- **Role**: Provides the visual interface (Dashboard, AI Prediction Form, Daily Habit Log, Interactive Chatbot).
 - **Live URL**: [https://perisai-ptm.vercel.app/](https://perisai-ptm.vercel.app/)
 
 ### 2. Backend API (Railway)
-- **Tech Stack**: Node.js, Express, dan PostgreSQL.
-- **Peran**: Mengurus manajemen *User* (Autentikasi JWT), penyimpanan *Habit Log*, dan bertindak sebagai *API Gateway* yang menjembatani Frontend dengan AI Microservice. Secara otonom menghitung *Historical Moving Average* (Rata-rata 7 Hari terakhir) sebelum mengirimkan data ke AI.
+- **Tech Stack**: Node.js, Express, and PostgreSQL.
+- **Role**: Handles User management (JWT Authentication), Habit Log storage, and acts as an API Gateway bridging the Frontend with the AI Microservice. Autonomously calculates Historical Moving Average (last 7 days average) before sending data to the AI.
 - **Live URL**: `https://perisai.up.railway.app`
 
 ### 3. AI Microservice (Hugging Face Spaces)
 - **Tech Stack**: Python, FastAPI, TensorFlow, Google Gemini API, Docker.
-- **Peran**: Server berkinerja tinggi yang dikhususkan secara eksklusif untuk menjalankan inferensi model *Deep Learning* (`perisai_model_production.keras`) dan memproses respons *Generative AI* secara *real-time*. Diisolasi menggunakan Docker *Container*.
+- **Role**: High-performance server dedicated exclusively to running Deep Learning model inference (`perisai_model_production.keras`) and processing Generative AI responses in real-time. Isolated using a Docker Container.
 - **Live URL**: [https://huggingface.co/spaces/hilmyinaja/perisai-ai-api](https://huggingface.co/spaces/hilmyinaja/perisai-ai-api)
 
 ---
 
-## 📂 Struktur Repositori Terpadu (Monorepo)
-- `/ai_engineer`: Jantung Ilmu Data. Berisi *Jupyter Notebook* untuk pelatihan model, visualisasi *Class Imbalance*, *logs* TensorBoard, dan *source code* API FastAPI.
-- `/Fullstack/Frontend`: Kode sumber untuk antarmuka pengguna web.
-- `/Fullstack/Backend`: Kode sumber untuk logika server Node.js dan manajemen *database*.
-- `/data`: Tempat penyimpanan dataset mentah dan bersih (*BRFSS CDC*).
+## 📂 Unified Repository Structure (Monorepo)
+- `/ai_engineer`: The heart of Data Science. Contains Jupyter Notebooks for model training, Class Imbalance visualization, TensorBoard logs, and FastAPI API source code.
+- `/Fullstack/Frontend`: Source code for the web user interface.
+- `/Fullstack/Backend`: Source code for Node.js server logic and database management.
+- `/data`: Storage for raw and cleaned datasets (BRFSS CDC).
 
 ---
 
-## 🚀 Cara Menjalankan Proyek (Local Development)
+## 🚀 How to Run the Project (Local Development)
 
-Anda perlu menjalankan ketiga servis secara bersamaan di terminal yang berbeda jika ingin menjalankan aplikasi ini secara lokal.
+You need to run all three services simultaneously in different terminals if you want to run this application locally.
 
-### Prasyarat:
+### Prerequisites:
 - Python 3.10+
 - Node.js 18+
 - PostgreSQL Server
 
-### Langkah 0: Kloning Repositori
-Buka terminal dan unduh kode sumber dari GitHub:
+### Step 0: Clone the Repository
+Open a terminal and download the source code from GitHub:
     ```bash
     git clone https://github.com/hilmyinaja/Data-Analysis-Penyakit-Tidak-Menular.git
     cd Data-Analysis-Penyakit-Tidak-Menular
     ```
 
-### Langkah 1: Persiapan Database & Backend (Node.js)
-1. Buka terminal dan masuk ke direktori Backend:
+### Step 1: Database & Backend Setup (Node.js)
+1. Open a terminal and navigate to the Backend directory:
     ```bash
     cd Fullstack/Backend
     ```
-2. Instal pustaka yang dibutuhkan:
+2. Install the required libraries:
     ```bash
     npm install
     ```
-3. Buat file `.env` di dalam folder `Backend` yang berisi URL PostgreSQL Anda, contoh:
+3. Create a `.env` file inside the `Backend` folder containing your PostgreSQL URL, for example:
     ```env
-    DATABASE_URL=postgres://postgres:password_anda@localhost:5432/perisai_db
+    DATABASE_URL=postgres://postgres:your_password@localhost:5432/perisai_db
     PORT=5000
-    JWT_SECRET=rahasia_super_aman_123
+    JWT_SECRET=super_safe_secret_123
     ML_SERVICE_URL=http://127.0.0.1:8001/api/v1
     AI_SERVICE_URL=http://127.0.0.1:8001/api/v1
     AI_CHAT_URL=http://127.0.0.1:8001
     ```
-4. Lakukan *Migrate* tabel ke *database*:
+4. Migrate the tables to the database:
     ```bash
     npm run migrate
     ```
-5. Jalankan server Backend:
+5. Run the Backend server:
     ```bash
     npm run dev
     ```
 
-### Langkah 2: Menyiapkan Lingkungan Python
-1. Buka terminal di **akar (root) folder** proyek.
-2. Buat dan aktifkan *virtual environment*:
+### Step 2: Set Up Python Environment
+1. Open a terminal in the **root folder** of the project.
+2. Create and activate a virtual environment:
     ```bash
     python3 -m venv venv
     source venv/bin/activate
     ```
-3. Instal semua dependensi:
+3. Install all dependencies:
     ```bash
     pip install -r requirements.txt
     ```
 
-### Langkah 3: Menjalankan AI Microservice (FastAPI)
-1. Buka terminal **baru** (pastikan venv aktif) dan masuk ke direktori AI API:
+### Step 3: Run AI Microservice (FastAPI)
+1. Open a **new** terminal (make sure venv is active) and navigate to the AI API directory:
     ```bash
     cd ai_engineer/perisai_api
     ```
-2. Buat file `.env` di folder tersebut dan isi dengan Google API Key Anda:
+2. Create an `.env` file in that folder and fill it with your Google API Key:
     ```env
-    GEMINI_API_KEY=KUNCI_RAHASIA_ANDA
+    GEMINI_API_KEY=YOUR_SECRET_KEY
     ```
-3. Jalankan server *FastAPI*:
+3. Run the FastAPI server:
     ```bash
     uvicorn perisai_api:app --port 8001 --reload
     ```
 
-### Langkah 4: Menjalankan Frontend (React UI)
-1. Buka terminal **baru** dan masuk ke direktori Frontend:
+### Step 4: Run Frontend (React UI)
+1. Open a **new** terminal and navigate to the Frontend directory:
     ```bash
     cd Fullstack/Frontend
     ```
-2. Instal dependensi:
+2. Install dependencies:
     ```bash
     npm install
     ```
-3. Buat file `.env` berisi alamat Backend Node.js:
+3. Create a `.env` file containing the Node.js Backend address:
     ```env
     VITE_API_URL=http://localhost:5000/api
     ```
-4. Nyalakan antarmuka web:
+4. Start the web interface:
     ```bash
     npm run dev
     ```
-5. Buka tautan lokal yang muncul (biasanya `http://localhost:5173`) di *browser* Anda.
+5. Open the local link that appears (usually `http://localhost:5173`) in your browser.
 
 ---
-*Proyek ini merupakan demonstrasi level industri dari perpaduan Ilmu Data (Data Science), Rekayasa Machine Learning (ML Engineering), dan Rekayasa Perangkat Lunak Web Modern (Fullstack Development).*
+*This project is an industry-level demonstration of the intersection of Data Science, Machine Learning Engineering, and Modern Web Software Engineering (Fullstack Development).*

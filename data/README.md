@@ -1,1 +1,0 @@
-## This were the folder where all the raw data gathered
