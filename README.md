@@ -124,4 +124,11 @@ Open a terminal and download the source code from GitHub:
 5. Open the local link that appears (usually `http://localhost:5173`) in your browser.
 
 ---
+
+## 📷 Video Documentation
+
+https://github.com/user-attachments/assets/33cc7f69-4b70-46b1-86fd-4dcd42e38c70
+
+---
+
 *This project is an industry-level demonstration of the intersection of Data Science, Machine Learning Engineering, and Modern Web Software Engineering (Fullstack Development).*
